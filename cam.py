@@ -2,23 +2,51 @@ import glm
 import pygame as pg
 
 class Cam:
-    def __init__(self,app):
+    def __init__(self, app):
         self.app = app
-        self.position = glm.vec3(6,6,6) # position
-        self.up = glm.vec3(0,2,0) # camera orientation
-        self.forw = glm.vec3(0,0,-1)
-        self.right = glm.vec3(1,0,0)
-        #calculate aspect ratio of screen
-        self.aspect_rat = app.WIN_SIZE[0] / app.WIN_SIZE[1]
-        self.view_matrix = self.get_v_matrix()
-        self.proj_matrix = self.get_p_matrix()
+        self.position = glm.vec3(0, 0, 26) # sets initial position of camera
+        self.up = glm.vec3(0, 2, 0) # sets camera's up direction
+        self.forw = glm.vec3(0, 0, -1) # sets camera's forward direction
+        self.right = glm.vec3(1, 0, 0) # sets camera's right direction
+        self.vertical_ax = -90 # sets vertical axis for camera
+        self.horiz_ax = 0 # sets horizontal axis for camera
+        
+        # calculate aspect ratio of screen
+        self.aspect_rat = app.WIN_SIZE[0] / app.WIN_SIZE[1] # gets aspect ratio of screen
+        self.view_matrix = self.get_v_matrix() # gets the view matrix for the camera
+        self.proj_matrix = self.get_p_matrix() # gets the projection matrix for the camera
+
+
+    def rotate(self):
+        rel_x, rel_y = pg.mouse.get_rel() # gets relative position of the mouse
+        self.vertical_ax += rel_x * 0.04 # adjusts the vertical axis of the camera based on mouse movement
+        self.horiz_ax -= rel_y * 0.04 # adjusts the horizontal axis of the camera based on mouse movement
+        self.horiz_ax = max(-89, min(89, self.horiz_ax)) # keeps the camera within a certain range of vertical motion
+
+    def update_camera_vectors(self):
+        vertic, horiz = glm.radians(self.vertical_ax), glm.radians(self.horiz_ax) # converts the vertical and horizontal axes to radians
+        
+        # calculates the forward direction of the camera based on the vertical and horizontal axes
+        self.forw.x = glm.cos(vertic) * glm.cos(horiz)
+        self.forw.y = glm.sin(horiz)
+        self.forw.z = glm.sin(vertic) * glm.cos(horiz)
+
+        self.forward = glm.normalize(self.forw) # normalizes the forward direction vector
+        self.right = glm.normalize(glm.cross(self.forw, glm.vec3(0, 1, 0))) # calculates the right direction of the camera
+        self.up = glm.normalize(glm.cross(self.right, self.forw)) # calculates the up direction of the camera
     
     def update(self):
-        self.move()
-        self.view_matrix = self.get_v_matrix()
+        self.move() 
+        # updates camera position based on user input
+        self.rotate() 
+        # updates camera rotation based on user input
+        self.update_camera_vectors() 
+        # updates camera vectors based on current rotation
+        self.view_matrix = self.get_v_matrix() 
+        # updates the view matrix based on the camera's current position and orientation
 
     def move(self):
-        velo = 0.01 * self.app.delta_time # 0.01 speed
+        velo = 0.05 * self.app.delta_time # 0.01 speed
         if pg.key.get_pressed()[pg.K_w]:
             self.position += self.forw * velo
         if pg.key.get_pressed()[pg.K_s]:
@@ -31,9 +59,12 @@ class Cam:
             self.position += self.up * velo
         if pg.key.get_pressed()[pg.K_e]:
             self.position -= self.up * velo
+        print(f"COORDS: {self.position}")
 
     def get_v_matrix(self):
-        return glm.lookAt(self.position,self.position + self.forw,self.up) # glm.vec3 - center of camera
+        return glm.lookAt(self.position,self.position + self.forw,self.up) 
+        # glm.vec3 - center of camera
 
     def get_p_matrix(self):
-        return glm.perspective(glm.radians(50),self.aspect_rat,0.1,100) # 50 - FOV,how close it can get - 0.1,how far - 100 
+        return glm.perspective(glm.radians(50),self.aspect_rat,0.1,100) 
+        # 50 - FOV,how close it can get - 0.1,how far - 100 

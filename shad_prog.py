@@ -4,63 +4,60 @@ import pywavefront
 import glm
 from abc import ABC, abstractmethod
 
-
+# Define an abstract base class for the shader program interface
 class shader_program_interface(ABC):
 
-
+    # Define an abstract method for destroying the shader program
     @abstractmethod
     def destroy(self):
         raise NotImplementedError
     
-
+    # Define an abstract method for getting the shader file
     @abstractmethod
     def g_shader_file(self):
         raise NotImplementedError
 
-
+# Define a concrete implementation of the shader program interface
 class shader_program(shader_program_interface):
     
+    # Initialize the shader program
     def __init__(self,app):
         self.app = app  
         self.obj = {}
-        self.shader_prog = self.g_shader_file('default')
-        self.obj['default'] = self.shader_prog
-        self.model_mat = self.get_model_m()
-        self.on_init()
+        self.obj['default'] = self.g_shader_file('default') # Get the default shader file
+        self.obj['skybox'] = self.g_shader_file('skybox')   # Get the skybox shader file
     
-    #model matrix
-    def get_model_m(self):
-        model = glm.mat4()
-        model = glm.translate(model,self.app.pos)
-        return model 
-    def update(self):
-        # for moving the cube
-        model_mat = glm.rotate(self.model_mat,self.app.app.time,glm.vec3(0,1,0))
-        self.shader_prog['model_mat'].write(model_mat)
-        self.shader_prog['v_proj'].write(self.app.app.cam.view_matrix)
-        self.shader_prog['camP'].write(self.app.app.cam.position)
-
-    def on_init(self):
-        #bulb 
-        self.shader_prog['bulb.pos'].write(self.app.app.bulb.pos)
-        self.shader_prog['bulb.amb'].write(self.app.app.bulb.amb)
-        self.shader_prog['bulb.spe'].write(self.app.app.bulb.spec)
-        self.shader_prog['tx_s'] = 0
-        self.app.tx.use() #  use texture
-        self.shader_prog['m_proj'].write(self.app.app.cam.proj_matrix)
-        self.shader_prog['v_proj'].write(self.app.app.cam.view_matrix)
-        self.shader_prog['model_mat'].write(self.model_mat)
-    
+    # Destroy the shader program
     def destroy(self):
-        [p.release() for p in self.obj.values()]
+        [p.release() for p in self.obj.values()]  # Release all the shader programs
     
+    # Get the shader file
     def g_shader_file(self,shader):
-            with open(f'./shaders/{shader}.vert') as file:
-                vert_shad = file.read()
-            with open(f'./shaders/{shader}.frag') as file:
-                frag_shad = file.read()
+        print('reading shader_file...')
+        with open(f'./shaders/{shader}.vert') as file:
+            vert_shad = file.read()       # Read the vertex shader
+        with open(f'./shaders/{shader}.frag') as file:
+            frag_shad = file.read()       # Read the fragment shader
+        return self.app.ctx.program(vertex_shader=vert_shad,fragment_shader=frag_shad)  # Return the program
 
-            return self.app.ctx.program(vertex_shader=vert_shad,fragment_shader=frag_shad)    
-
-
-
+# Define a concrete implementation of the skybox shader program
+class skybox_shader_program(shader_program_interface):
+    
+    # Initialize the skybox shader program
+    def __init__(self,app):
+        self.app = app  
+        self.obj = {}
+        self.obj['skybox'] = self.g_shader_file('skybox')  # Get the skybox shader file
+    
+    # Destroy the skybox shader program
+    def destroy(self):
+        [p.release() for p in self.obj.values()]  # Release all the shader programs
+    
+    # Get the skybox shader file
+    def g_shader_file(self,shader):
+        print('reading skybox_shader_file...')
+        with open(f'./shaders/{shader}.vert') as file:
+            vert_shad = file.read()       # Read the vertex shader
+        with open(f'./shaders/{shader}.frag') as file:
+            frag_shad = file.read()       # Read the fragment shader
+        return self.app.ctx.program(vertex_shader=vert_shad,fragment_shader=frag_shad)  # Return the program
