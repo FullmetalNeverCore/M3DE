@@ -32,6 +32,15 @@ class Model(ABC):
         # sets the model matrix to the get_model_m() method result
         self.model_mat = self.get_model_m()
 
+
+        self.vbo_obj = cube_VBO(self)
+
+        self.vbo = self.vbo_obj.vbo
+
+        self.vao_obj = cube_VAO(self)
+
+        self.vao = self.vao_obj.vao
+
     
     # Define an abstract method update()
     @abstractmethod
@@ -110,13 +119,6 @@ class Cube(Model):
 
     def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0)):
         super().__init__(app,txid,pos,sh_name,rotat)
-        # creates a Vertex Buffer Object and sets it to the vbo_obj attribute
-        self.vbo_obj = cube_VBO(self)
-        self.vbo = self.vbo_obj.vbo
-
-        # creates a Vertex Array Object and sets it to the vao_obj attribute
-        self.vao_obj = cube_VAO(self)
-        self.vao = self.vao_obj.vao
         self.on_init()
 
     #model matrix
@@ -164,13 +166,6 @@ class Twins(Model):
 
     def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0)):
         super().__init__(app,txid,pos,sh_name,rotat)
-        # creates a Vertex Buffer Object and sets it to the vbo_obj attribute
-        self.vbo_obj = twins_VBO(self)
-        self.vbo = self.vbo_obj.vbo
-
-        # creates a Vertex Array Object and sets it to the vao_obj attribute
-        self.vao_obj = twins_VAO(self)
-        self.vao = self.vao_obj.vao
         self.on_init()
 
     #model matrix
@@ -204,6 +199,7 @@ class Twins(Model):
         self.shader_prog['model_mat'].write(self.model_mat)
 
 
+
     #render model
     def render(self):
         self.update()
@@ -234,6 +230,7 @@ class SkyBox(SkyBoxModel):
         self.tx.sb.use() #  use texture of skybox
         self.shader_prog['v_proj'].write(glm.mat4(glm.mat3(self.app.cam.view_matrix)))
         self.shader_prog['m_proj'].write(self.app.cam.proj_matrix)
+
 
 
 
