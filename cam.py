@@ -46,7 +46,7 @@ class Cam:
         # updates the view matrix based on the camera's current position and orientation
 
     def move(self):
-        velo = 0.05 * self.app.delta_time # 0.01 speed
+        velo = 0.05 * self.app.d_time # 0.01 speed
         if pg.key.get_pressed()[pg.K_w]:
             self.position += self.forw * velo
         if pg.key.get_pressed()[pg.K_s]:
@@ -59,7 +59,7 @@ class Cam:
             self.position += self.up * velo
         if pg.key.get_pressed()[pg.K_e]:
             self.position -= self.up * velo
-        print(f"COORDS: {self.position}")
+        #print(f"COORDS: {self.position}")
 
     def get_v_matrix(self):
         return glm.lookAt(self.position,self.position + self.forw,self.up) 

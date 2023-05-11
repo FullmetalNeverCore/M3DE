@@ -8,6 +8,8 @@ from space import *
 import os
 from logo import *
 import psutil
+from gather import *
+import gc
 
 class M3DE:
     def __init__(self, win_size=(800,600)) -> None:
@@ -27,7 +29,7 @@ class M3DE:
         self.ctx.enable(flags=mgl.DEPTH_TEST) # CULL_FACE to not render invisible
         # Time
         self.time = 0
-        self.delta_time = 0
+        self.d_time = 0
         # Framerate and delta time   
         self.clock = pg.time.Clock()
 
@@ -35,10 +37,16 @@ class M3DE:
     # Method for handling events
     def events(self):
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            if (event.type == pg.KEYDOWN and event.key == pg.K_z) or event.type == pg.QUIT:
                 self.space.destroy()
+                self.gather.destroy()
                 pg.quit()
                 sys.exit()
+            elif (event.type == pg.KEYDOWN and event.key == pg.K_x):
+                self.space.destroy()
+                self.gather.destroy()
+                gc.collect()
+                self.run()
     
     # Method for getting time
     def space_time(self):
@@ -71,21 +79,22 @@ class M3DE:
     def run(self):
         os.system('cls' if os.name=='nt' else 'clear')
         print(Logo.logo())
-        input('press enter to start')
         # Camera
         self.cam = Cam(self)
         # LIGHT
         self.bulb = Bulb()
         # Triangles 
+        #Gather
+        self.gather = Gather(self)
+        #Space
         self.space = Space(self)
         while True:
             self.space_time()
             self.events()
             self.cam.update()
             self.render_scene()
-            self.delta_time = self.clock.tick(60)
+            self.d_time = self.clock.tick(60)
 
 # Main entry point of the program
 if __name__ == '__main__':
-    m3de = M3DE()
-    m3de.run()
+    M3DE().run()

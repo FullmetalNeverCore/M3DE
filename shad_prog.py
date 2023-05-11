@@ -29,33 +29,11 @@ class shader_program(shader_program_interface):
     
     # Destroy the shader program
     def destroy(self):
-        [p.release() for p in self.obj.values()]  # Release all the shader programs
+        [p.release() for p in self.obj.values()] 
     
     # Get the shader file
     def g_shader_file(self,shader):
         print('reading shader_file...')
-        with open(f'./shaders/{shader}.vert') as file:
-            vert_shad = file.read()       # Read the vertex shader
-        with open(f'./shaders/{shader}.frag') as file:
-            frag_shad = file.read()       # Read the fragment shader
-        return self.app.ctx.program(vertex_shader=vert_shad,fragment_shader=frag_shad)  # Return the program
-
-# Define a concrete implementation of the skybox shader program
-class skybox_shader_program(shader_program_interface):
-    
-    # Initialize the skybox shader program
-    def __init__(self,app):
-        self.app = app  
-        self.obj = {}
-        self.obj['skybox'] = self.g_shader_file('skybox')  # Get the skybox shader file
-    
-    # Destroy the skybox shader program
-    def destroy(self):
-        [p.release() for p in self.obj.values()]  # Release all the shader programs
-    
-    # Get the skybox shader file
-    def g_shader_file(self,shader):
-        print('reading skybox_shader_file...')
         with open(f'./shaders/{shader}.vert') as file:
             vert_shad = file.read()       # Read the vertex shader
         with open(f'./shaders/{shader}.frag') as file:

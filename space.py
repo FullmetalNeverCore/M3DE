@@ -34,7 +34,7 @@ class Space:
                 self.obj.append(Twins(self.app, 2, (0, -20, -50),'default',(270,0,0)))
             case 'few_cubes':
                         print('scene might take a while to load...')
-                        self.obj = [Cube(self.app, 0, (x, 2, y)) for x in range(-30,30,2) for y in range(-30,30,2)]
+                        self.obj = [Cube(self.app, 0, (0+x,0,0+y)) for x in range(50) for y in range(50)]
                                   
             case 'few_objs':
                         print('scene might take a while to load...')
@@ -54,6 +54,7 @@ class Space:
     # define a method to render the objects in the scene
     def render(self):
         # loop through each object in the "obj" list and call its "render" method
+        #print(f'                                    LEN of OBJS in self.obj {len(self.obj)}',end='\r')
         for o in self.obj:
             o.render()
         # call the "render" method on the SkyBox instance

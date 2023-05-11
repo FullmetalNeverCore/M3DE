@@ -2,6 +2,8 @@ import numpy as np
 import moderngl as mgl
 import pywavefront
 from abc import ABC, abstractmethod
+from shad_prog import *
+from vbo import * 
 
 # Define an abstract interface for Vertex Array Objects (VAOs)
 class VAO_interface(ABC):
@@ -15,69 +17,24 @@ class VAO_interface(ABC):
     @abstractmethod
     def destroy(self):
         raise NotImplementedError
-
-# Define a concrete implementation of the VAO interface for a triangular VAO
-class tri_VAO(VAO_interface):
-
-    def __init__(self, app):
-        self.app = app
-        self.vao = self.g_vao()
-
-    def destroy(self):
-        self.vao.release()
     
-    def g_vao(self):
+
+class general_VAO():
+
+    def __init__(self,app):
+        self.app = app
+        self.sp = shader_program(self.app)
+        self.vbo = general_VBO(self.app)
+        self.vao_arr = {
+            'cube' : self.g_vao(self.sp.obj['default'],self.vbo.vbo_d['cube'].g_vbo(),'2f 3f 3f',['in_txcoord','in_norm','in_position']),
+            'skybox' : self.g_vao(self.sp.obj['skybox'],self.vbo.vbo_d['skybox'].g_vbo(),'3f',['in_position']),
+            'twins' : self.g_vao(self.sp.obj['default'],self.vbo.vbo_d['twins'].g_vbo(),'2f 3f 3f',['in_txcoord','in_norm','in_position'])
+        }
+
+    def g_vao(self,sp,vbo,format,attrs):
         # Define a VAO with a single buffer containing 3 vectors with floating point values
-        vao = self.app.ctx.vertex_array(self.app.shader_prog,[(self.app.vbo,'3f','in_position')])
-        return vao
-
-# Define a concrete implementation of the VAO interface for a cuboid VAO
-class cube_VAO(VAO_interface):
-
-    def __init__(self, app):
-        self.app = app
-        self.format = '2f 3f 3f'
-        self.attrs = ['in_txcoord','in_norm','in_position']
-        self.vao = self.g_vao()
+        return self.app.ctx.vertex_array(sp, [(vbo, format, *attrs)], skip_errors=True)
 
     def destroy(self):
-        self.vao.release()
-    
-    def g_vao(self):
-        # Define a VAO with a buffer containing 2 vectors, 3 vectors, and 3 vectors with floating point values respectively
-        vao = self.app.ctx.vertex_array(self.app.shader_prog, [(self.app.vbo, self.format, *self.attrs)])
-        return vao 
+        self.sp.destroy()
 
-# Define a concrete implementation of the VAO interface for a skybox VAO
-class skybox_VAO(VAO_interface):
-
-    def __init__(self, app):
-        self.app = app
-        self.format = '3f'
-        self.attrs = ['in_position']
-        self.vao = self.g_vao()
-
-    def destroy(self):
-        self.vao.release()
-    
-    def g_vao(self):
-        # Define a VAO with a single buffer containing 3 vectors with floating point values
-        vao = self.app.ctx.vertex_array(self.app.shader_prog, [(self.app.vbo, self.format, *self.attrs)])
-        return vao 
-
-# Define a concrete implementation of the VAO interface for a twins VAO
-class twins_VAO(VAO_interface):
-
-    def __init__(self, app):
-        self.app = app
-        self.format = '2f 3f 3f'
-        self.attrs = ['in_txcoord','in_norm','in_position']
-        self.vao = self.g_vao()
-
-    def destroy(self):
-        self.vao.release()
-    
-    def g_vao(self):
-        # Define a VAO with a buffer containing 2 vectors, 3 vectors, and 3 vectors with floating point values respectively
-        vao = self.app.ctx.vertex_array(self.app.shader_prog, [(self.app.vbo, self.format, *self.attrs)])
-        return vao

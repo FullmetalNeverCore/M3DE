@@ -10,11 +10,13 @@ from abc import ABC, abstractmethod
 class txuring:
 
     # Initializing the class with app and tx arguments
-    def __init__(self, app, tx):
+    def __init__(self, app):
         # Setting the app as the context
         self.ctx = app
         # Setting the texture as the texture from texturing function
-        self.tx = self.texturing(tx)
+        self.tx = {0:self.texturing('./tx/dirt.jpg')
+                   ,1:self.texturing('./tx/red.png')
+                   ,2:self.texturing('./tx/Cat_diffuse.jpg')}
         # Setting the skybox to the skybox from the skybox function
         self.sb = self.skybox('./tx/skybox/')
 
