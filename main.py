@@ -5,9 +5,12 @@ from tri import *
 from cam import Cam
 from bulb import Bulb
 from space import *
+import os
+from logo import *
+import psutil
 
 class M3DE:
-    def __init__(self, win_size=(1600,900)) -> None:
+    def __init__(self, win_size=(800,600)) -> None:
         pg.init()
         # OpenGL attributes
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION,3)
@@ -21,12 +24,13 @@ class M3DE:
         self.screen = pg.display.set_mode(self.WIN_SIZE, flags=pg.OPENGL | pg.DOUBLEBUF)
         # Detect and use existing OpenGL context
         self.ctx = mgl.create_context()
-        self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE) # CULL_FACE to not render invisible
+        self.ctx.enable(flags=mgl.DEPTH_TEST) # CULL_FACE to not render invisible
         # Time
         self.time = 0
         self.delta_time = 0
         # Framerate and delta time   
         self.clock = pg.time.Clock()
+
 
     # Method for handling events
     def events(self):
@@ -42,22 +46,31 @@ class M3DE:
 
     # Method for rendering the scene
     def render_scene(self):
+        ram_usage = self.get_process_stats()
+
+        print(f"           RAM usage: {ram_usage:.2f} MB",end='\r')
+        print(f' FPS:{int(self.clock.get_fps())}',end='\r')
         self.ctx.clear(color=(0,0,0))
         self.space.render()
         pg.display.flip()
 
+    # Method for rendering text
+    def render_text(self, text, position):
+        text_surface = self.font.render(text, True, (255, 255, 255))
+        self.screen.blit(text_surface, position)
+
+    # function to get CPU utilization and RAM consumption
+    def get_process_stats(self):
+        pid = os.getpid()
+        process = psutil.Process(pid)
+        mem_info = process.memory_info()
+        ram_usage = mem_info.rss / (1024 * 1024)  # convert to MB
+        return ram_usage
+
     # Main loop of the program
     def run(self):
-        print('''
-        ███╗   ███╗██████╗ ██████╗ ███████╗
-        ████╗ ████║╚════██╗██╔══██╗██╔════╝
-        ██╔████╔██║ █████╔╝██║  ██║█████╗  
-        ██║╚██╔╝██║ ╚═══██╗██║  ██║██╔══╝  
-        ██║ ╚═╝ ██║██████╔╝██████╔╝███████╗
-        ╚═╝     ╚═╝╚═════╝ ╚═════╝ ╚══════╝
-                                   0xNC @ 2023             
-        
-        ''')
+        os.system('cls' if os.name=='nt' else 'clear')
+        print(Logo.logo())
         input('press enter to start')
         # Camera
         self.cam = Cam(self)
