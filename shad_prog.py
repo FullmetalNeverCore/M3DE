@@ -26,6 +26,8 @@ class shader_program(shader_program_interface):
         self.obj = {}
         self.obj['default'] = self.g_shader_file('default') # Get the default shader file
         self.obj['skybox'] = self.g_shader_file('skybox')   # Get the skybox shader file
+        self.obj['fog_default'] = self.g_shader_file('fog_default') # Get the default shader file
+        self.obj['fog_skybox'] = self.g_shader_file('fog_skybox')   # Get the skybox shader file
     
     # Destroy the shader program
     def destroy(self):

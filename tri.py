@@ -25,7 +25,7 @@ class Model(ABC):
         self.obj = {}
         
         # sets the shader program to the shader program object
-        self.shader_prog = self.app.gather.vao.sp.obj['default']
+        self.shader_prog = self.app.gather.vao.new_sp
         
         # sets the model matrix to the get_model_m() method result
         self.model_mat = self.get_model_m()
@@ -67,7 +67,7 @@ class SkyBoxModel(ABC):
         # Create an empty dictionary object and set it as the obj instance variable
         self.obj = {}
         # Use the skybox_shader_program to load the shader program with the provided sh_name parameter and set it as the shader_prog instance variable
-        self.shader_prog = self.app.gather.vao.sp.obj['skybox']
+        self.shader_prog = self.app.gather.vao.new_sbsp
         # Use the get_model_m method to calculate the model matrix and set it as the model_mat instance variable
         self.model_mat = self.get_model_m()
         # Set the vbo instance variable to the vbo instance variable of the vbo_obj instance variable
