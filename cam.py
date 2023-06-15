@@ -1,8 +1,8 @@
 import glm
 import pygame as pg
-
+import numpy as np
 class Cam:
-    def __init__(self, app):
+    def __init__(self, app,dist=35):
         self.app = app
         self.position = glm.vec3(0, 0, 26) # sets initial position of camera
         self.up = glm.vec3(0, 2, 0) # sets camera's up direction
@@ -10,7 +10,9 @@ class Cam:
         self.right = glm.vec3(1, 0, 0) # sets camera's right direction
         self.vertical_ax = -90 # sets vertical axis for camera
         self.horiz_ax = 0 # sets horizontal axis for camera
-        
+        self.fov = 100
+        self.near_distance = 0.1  # Near plane distance
+        self.far_distance = float(dist)
         # calculate aspect ratio of screen
         self.aspect_rat = app.WIN_SIZE[0] / app.WIN_SIZE[1] # gets aspect ratio of screen
         self.view_matrix = self.get_v_matrix() # gets the view matrix for the camera
@@ -43,6 +45,8 @@ class Cam:
         self.update_camera_vectors() 
         # updates camera vectors based on current rotation
         self.view_matrix = self.get_v_matrix() 
+        #print(self.view_matrix)
+        #print(self.proj_matrix)
         # updates the view matrix based on the camera's current position and orientation
 
     def move(self):
@@ -66,5 +70,13 @@ class Cam:
         # glm.vec3 - center of camera
 
     def get_p_matrix(self):
-        return glm.perspective(glm.radians(50),self.aspect_rat,0.1,100) 
-        # 50 - FOV,how close it can get - 0.1,how far - 100 
+        projection_matrix = np.array([
+            [1 / (self.aspect_rat * np.tan(np.radians(self.fov / 2))), 0, 0, 0],
+            [0, 1 / np.tan(np.radians(self.fov / 2)), 0, 0],
+            [0, 0, -(self.far_distance + self.near_distance) / (self.far_distance - self.near_distance), -1],
+            [0, 0, -(2 * self.far_distance * self.near_distance) / (self.far_distance - self.near_distance), 0]
+        ], dtype=np.float32)
+        return projection_matrix
+    
+    def frustum_culling(self):
+        print(self.view_matrix*self.proj_matrix)
