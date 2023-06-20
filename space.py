@@ -10,18 +10,6 @@ import moderngl as mgl
 
 
 
-#Frustum Culling 
-frustum_planes = [
-    glm.vec4(1, 0, 0, 1),   # Right plane
-    glm.vec4(-1, 0, 0, 1),  # Left plane
-    glm.vec4(0, 1, 0, 1),   # Top plane
-    glm.vec4(0, -1, 0, 1),  # Bottom plane
-    glm.vec4(0, 0, 1, 1),   # Near plane
-    glm.vec4(0, 0, -1, 1)   # Far plane
-]
-
-
-
 
 # define a class called "Space"
 class Space:
@@ -48,14 +36,13 @@ class Space:
                 self.obj.append(Twins(self.app, 2, (0, -20, -50),'default',(270,0,0)))
             case 'few_cubes':
                         print('scene might take a while to load...')
-                        self.obj =  self.obj + [Cube(self.app, 0, (x, 0, y)) for y in range(50) for x in range(50)]
+                        self.obj =  self.obj + [Cube(self.app, 0, (x, 0, y)) for y in range(150) for x in range(150)]
                                   
             case 'few_objs':
                         print('scene might take a while to load...')
                         self.obj = [Twins(self.app, 2, (0+x, 0-x, 0+x),'default',(270,0,0)) for x in range(10)]
             case 'scene':
                 print('loading scene...')
-                self.obj = [Cube(self.app, 0, (0+x,0,0+y)) for x in range(50) for y in range(50)] + [Twins(self.app,2,(0,-20,-50),'default',(270,0,0))]
             case _:
                   print('the model you entered is not defined.')      
         os.system('cls' if os.name=='nt' else 'clear')     
@@ -93,7 +80,8 @@ class Space:
         
         for o, distance in zip(self.obj, distances):
             if distance <= self.app.cam.far_distance:
-                o.render() 
+                o.render()
+
         #looks like a working method
         # call the "render" method on the SkyBox instance
         self.sb.render()

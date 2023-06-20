@@ -79,9 +79,29 @@ class cube_VBO(VBO_interface):
     def vert_data(self) -> list:
         # Generates the vertex data for a cube
         # Returns a list of vertex coordinates
-        vert_data = [(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1),
-                     (-1,1,-1),(-1,-1,-1),(1,-1,-1),(1,1,-1)]
-        
+        cube_offset = 0
+        # vert_data = [(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1),
+        #              (-1,1,-1),(-1,-1,-1),(1,-1,-1),(1,1,-1)]
+        vert_data = []
+        cube_size = 1
+                    # Calculate the position of each cube based on the offset
+        x = cube_offset
+        y = cube_offset
+        z = cube_offset
+
+                    # Generate the vertex coordinates for the current cube
+        cube_verts = [
+                        (x - cube_size, y - cube_size, z + cube_size),
+                        (x + cube_size, y - cube_size, z + cube_size),
+                        (x + cube_size, y + cube_size, z + cube_size),
+                        (x - cube_size, y + cube_size, z + cube_size),
+                        (x - cube_size, y + cube_size, z - cube_size),
+                        (x - cube_size, y - cube_size, z - cube_size),
+                        (x + cube_size, y - cube_size, z - cube_size),
+                        (x + cube_size, y + cube_size, z - cube_size)
+                    ]
+
+        vert_data.extend(cube_verts)
         # Specifies the indices for the triangles that make up the cube
         ind = [(0,2,3),(0,1,2),
                (1,7,2),(1,6,7),
