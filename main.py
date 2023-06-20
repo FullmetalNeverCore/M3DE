@@ -12,7 +12,7 @@ from gather import *
 import gc
 
 class M3DE:
-    def __init__(self, win_size=(800,600)) -> None:
+    def __init__(self, win_size=(1280,720)) -> None:
         pg.init()
         # OpenGL attributes
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION,3)
@@ -45,7 +45,6 @@ class M3DE:
             elif (event.type == pg.KEYDOWN and event.key == pg.K_x):
                 self.space.destroy()
                 self.gather.destroy()
-                gc.collect()
                 self.run()
     
     # Method for getting time
@@ -62,11 +61,6 @@ class M3DE:
         self.space.render()
         pg.display.flip()
 
-    # Method for rendering text
-    def render_text(self, text, position):
-        text_surface = self.font.render(text, True, (255, 255, 255))
-        self.screen.blit(text_surface, position)
-
     # function to get CPU utilization and RAM consumption
     def get_process_stats(self):
         pid = os.getpid()
@@ -80,7 +74,7 @@ class M3DE:
         os.system('cls' if os.name=='nt' else 'clear')
         print(Logo.logo())
         # Camera
-        self.cam = Cam(self)
+        self.cam = Cam(self,input("Draw distance: "))
         # LIGHT
         self.bulb = Bulb()
         # Triangles 
