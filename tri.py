@@ -7,17 +7,12 @@ from abc import ABC, abstractmethod
 from txuring import *
 import copy
 import datetime 
-import moderngl
+import moderngl as mgl
 import pygame
+import moderngl_window as mglw
+import time
 
 #TODO:Instancing
-
-
-class AABB:
-    def __init__(self, min_coords, max_coords):
-        self.min = min_coords
-        self.max = max_coords
-
 
 
 # Define an abstract base class3 Model
@@ -27,8 +22,6 @@ class Model(ABC):
     def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0)):
         self.app = app  # sets the app attribute to app parameter
         self.pos = pos  # sets the pos attribute to pos parameter
-        self.instance_count = 100
-        self.posit = [(i,i,i) for i in range(100)]
         self.rotat = glm.vec3([glm.radians(a) for a in rotat]) #sets a rotation attribute to model
         self.ctx = app.ctx  # sets the ctx attribute to app.ctx
         self.tx = self.app.gather.tx.tx[txid] # sets the tx attribute to the texture class in txuring module with txid parameter, which is 0 or 1, and the texture file path
@@ -198,8 +191,8 @@ class Twins(Model):
         self.shader_prog['tx_s'] = 0
         self.app.gather.tx.tx[2].use() #  use texture
         self.shader_prog['m_proj'].write(self.app.cam.proj_matrix)
-        #self.shader_prog['v_proj'].write(self.app.cam.view_matrix)
-        #self.shader_prog['model_mat'].write(self.model_mat)
+        self.shader_prog['v_proj'].write(self.app.cam.view_matrix)
+        self.shader_prog['model_mat'].write(self.model_mat)
 
 
     #render model
@@ -228,7 +221,7 @@ class SkyBox(SkyBoxModel):
 
     def update(self):
         #time * speed
-        model_mat = glm.rotate(self.model_mat,self.app.time*0.05,glm.vec3(0,0.1,0))
+        model_mat = glm.rotate(self.model_mat,self.app.time*0.01,glm.vec3(0,0.1,0))
         self.shader_prog['model_mat'].write(model_mat)
         self.shader_prog['v_proj'].write(glm.mat4(glm.mat3(self.app.cam.view_matrix)))
 
@@ -247,3 +240,30 @@ class SkyBox(SkyBoxModel):
 
     def destroy(self):
         self.base_vao.destroy()
+
+class FurMark():
+
+    def __init__(self, app):
+        self.app = app
+        self.vert = self.app.ctx.buffer(
+            np.array([
+                -1.0, -1.0,
+                1.0, -1.0,
+                -1.0,  1.0,
+                1.0,  1.0,
+            ], dtype=np.float32).tobytes())
+        self.shad_prog = self.app.gather.vao
+        self.fursp = self.shad_prog.sp.obj['furmark']  # shader program, vertex and fragment shader here
+        self.vao = self.app.ctx.vertex_array(self.fursp, [(self.vert, '2f', 'in_vert')])
+
+    def destroy(self):
+        self.shad_prog.sp.destroy()
+
+    def update(self):
+        self.fursp['tx_s'] = 0  # Set the texture sampler value to 0 for the default texture unit
+        self.app.gather.tx.tx[3].use()  # Use texture of skybox on texture unit 0
+        
+    def render(self):
+        self.update()
+        self.app.ctx.clear()
+        self.vao.render(mgl.TRIANGLE_STRIP)

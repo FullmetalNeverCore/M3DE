@@ -10,6 +10,7 @@ from logo import *
 import psutil
 from gather import *
 import gc
+import moderngl_window as mglw
 
 class M3DE:
     def __init__(self, win_size=(1280,720)) -> None:
@@ -32,7 +33,6 @@ class M3DE:
         self.d_time = 0
         # Framerate and delta time   
         self.clock = pg.time.Clock()
-
 
     # Method for handling events
     def events(self):
