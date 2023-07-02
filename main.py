@@ -1,4 +1,4 @@
-import pygame as pg 
+import pygame as pg
 import moderngl as mgl
 import sys
 from tri import *
@@ -9,7 +9,8 @@ import os
 from logo import *
 import psutil
 from gather import *
-import gc
+from OpenGL.GL import *
+
 
 class M3DE:
     def __init__(self, win_size=(1280,720)) -> None:
@@ -18,13 +19,13 @@ class M3DE:
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION,3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION,3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK,pg.GL_CONTEXT_PROFILE_CORE)
+        pg.display.set_caption("M3DE")
         # Window size
         self.WIN_SIZE = win_size
-        # Font
-        self.font = pg.font.SysFont(None, 25)
         # Create OpenGL context
-        self.screen = pg.display.set_mode(self.WIN_SIZE, flags=pg.OPENGL | pg.DOUBLEBUF)
+        self.screen = pg.display.set_mode(self.WIN_SIZE, flags= pygame.OPENGL| pg.DOUBLEBUF)
         # Detect and use existing OpenGL context
+        glViewport(0, 0, 1280, 700) # OpenGL render screen size
         self.ctx = mgl.create_context()
         self.ctx.enable(flags=mgl.DEPTH_TEST) # CULL_FACE to not render invisible
         # Time
@@ -32,6 +33,7 @@ class M3DE:
         self.d_time = 0
         # Framerate and delta time   
         self.clock = pg.time.Clock()
+
 
 
     # Method for handling events
@@ -57,7 +59,7 @@ class M3DE:
 
         print(f"           RAM usage: {ram_usage:.2f} MB",end='\r')
         print(f' FPS:{int(self.clock.get_fps())}',end='\r')
-        self.ctx.clear(color=(0,0,0))
+        self.ctx.clear(color=(255,255,255))
         self.space.render()
         pg.display.flip()
 

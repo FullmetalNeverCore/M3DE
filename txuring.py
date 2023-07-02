@@ -6,17 +6,17 @@ import pygame as pg
 import pywavefront
 from abc import ABC, abstractmethod
 
-# Defining a class named txuring
+
 class txuring:
 
-    # Initializing the class with app and tx arguments
     def __init__(self, app):
         # Setting the app as the context
         self.ctx = app
         # Setting the texture as the texture from texturing function
         self.tx = {0:self.texturing('./tx/dirt.jpg')
                    ,1:self.texturing('./tx/red.png')
-                   ,2:self.texturing('./tx/Cat_diffuse.jpg')}
+                   ,2:self.texturing('./tx/Cat_diffuse.jpg'),
+                   3:self.texturing('./tx/11133.jpg')}
         # Setting the skybox to the skybox from the skybox function
         self.sb = self.skybox('./tx/skybox/')
 
