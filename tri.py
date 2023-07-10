@@ -18,7 +18,7 @@ import time
 # Define an abstract base class3 Model
 class Model(ABC):
     
-    # Define the __init__() method that takes in app, txid, pos, and sh_name parameters
+    
     def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0)):
         self.app = app  # sets the app attribute to app parameter
         self.pos = pos  # sets the pos attribute to pos parameter
@@ -124,7 +124,7 @@ class Cube(Model):
 
     def update(self):
         # for moving the cube
-        #self.app.gather.tx.tx[0].use()  # update texture every frame
+        self.app.gather.tx.tx[0].use()  # update texture every frame
         self.shader_prog['model_mat'].write(self.model_mat)
         self.shader_prog['v_proj'].write(self.app.cam.view_matrix)
         self.shader_prog['camP'].write(self.app.cam.position)
@@ -154,6 +154,7 @@ class Cube(Model):
         self.base_vao.destroy()
 
 
+
 class Twins(Model):
 
     def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0)):
@@ -176,8 +177,7 @@ class Twins(Model):
     
     def update(self):
         # for moving the cube
-        #self.app.gather.tx.tx[2].use()  # update texture every frame
-
+        self.app.gather.tx.tx[2].use()  # update texture every frame
         model_mat = glm.rotate(self.model_mat,self.app.time,glm.vec3(0,1,0))
         self.shader_prog['model_mat'].write(model_mat)
         self.shader_prog['v_proj'].write(self.app.cam.view_matrix)
@@ -197,7 +197,7 @@ class Twins(Model):
 
     #render model
     def render(self):
-        #self.update()
+        self.update()
         self.vao.render()
 
     def destroy(self):

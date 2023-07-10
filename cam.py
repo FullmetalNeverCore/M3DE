@@ -78,5 +78,3 @@ class Cam:
         ], dtype=np.float32)
         return projection_matrix
     
-    def frustum_culling(self):
-        print(self.view_matrix*self.proj_matrix)

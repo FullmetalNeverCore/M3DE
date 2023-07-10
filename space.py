@@ -11,29 +11,41 @@ import moderngl as mgl
 
 
 
-# define a class called "Space"
+
 class Space:
-    # define the constructor for the class
+
     def __init__(self, app):
         # store a reference to the application instance
         self.app = app
         # create an empty list to hold the objects in the scene
         self.obj = []
-        # create a SkyBox instance, passing in the application instance, an ID of 0, and the color black
+        # create a SkyBox instance
         self.sb = SkyBox(app,0,(0,0,0))
         # load the obj
         # ects into the scene
         self.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ') # wtl - what to load
+        self.avab_obj = {'cube':Cube(self.app,0,(0,0,0)),
+                        'OBJ':Twins(self.app,2,(0,0,0),(270,0,0))
+                        }
         self.load(self.wtl)
+
+
+    def add_obj(self,cmd : list):
+        try:
+            obj = self.avab_obj.get(cmd[1])
+            obj.pos = (int(cmd[2]),int(cmd[3]),int(cmd[4]))
+            self.obj.append(obj)
+        except Exception as e:
+            print(e)
 
     # define a method to load the objects into the scene
     def load(self,wtl):
-        # create 10 Cube instances, each with a unique position along the x-axis, and add them to the "obj" list
+    
         match wtl:
             case 'cube':
-                self.obj.append(Cube(self.app, 0, (0, 0, 0)))
+                self.obj.append(self.avab_obj.get('cube'))
             case 'OBJ':
-                self.obj.append(Twins(self.app, 2, (0, -20, -50),'default',(270,0,0)))
+                self.obj.append(self.avab_obj.get('OBJ'))
             case 'few_cubes':
                         print('scene might take a while to load...')
                         self.obj =  self.obj + [Cube(self.app, 0, (x, 0, y)) for y in range(100) for x in range(100)]
@@ -48,52 +60,35 @@ class Space:
             case _:
                   print('the model you entered is not defined.')      
         os.system('cls' if os.name=='nt' else 'clear')     
-        print(Logo.logo())     
+        print(Logo.logo())  
+        print(self.app.config)   
        
 
-    # define a method to remove all objects from the scene
+    #define a method to remove all objects from the scene
     def destroy(self):
-        # call the "destroy" method on each object in the "obj" list
+        #call the "destroy" method on each object in the "obj" list
         self.sb.destroy()
         [x.destroy() for x in self.obj]
 
 
-    # define a method to render the objects in the scene
+    #  define a method to render the objects in the scene
     def render(self):
-        # Get the camera position (example)
-        # camera_position = self.app.cam.position  # Example camera position
-
-        # # # Unload objects outside the render distance
-        # visible_objects = []
-        # for o in self.obj:
-        #         obj_pos = o.pos
-        #         obj_distance = np.linalg.norm(obj_pos - camera_position)
-        #         if obj_distance <= self.app.cam.far_distance:
-        #             visible_objects.append(o)
-        # #print(f'LEN : {len(visible_objects)}')
-        # print(len(visible_objects))
-        # for o in visible_objects:
-        #     o.render()
-        # NOT WORKING   
-        #print(f"                                 {len(self.obj)}",end='\r')
         if self.wtl == 'furmark':
             for o in self.obj:
-                # delta = self.app.clock.tick(60)/1000.0
-                # self.time += delta
                 o.render()
-                # pg.display.flip()
 
         else:
+            # call the "render" method on the SkyBox instance
             self.sb.render()
-            camera_position = self.app.cam.position
+            if len(self.obj)>0:
+                camera_position = self.app.cam.position
 
-            obj_positions = np.array([o.pos for o in self.obj])
-            distances = np.linalg.norm(obj_positions - camera_position, axis=1)
-            
-            for o, distance in zip(self.obj, distances):
-                if distance <= self.app.cam.far_distance:
-                    o.render()
+                obj_positions = np.array([o.pos for o in self.obj])
+                distances = np.linalg.norm(obj_positions - camera_position, axis=1)
+                
+                for o, distance in zip(self.obj, distances):
+                    if distance <= self.app.cam.far_distance:
+                        o.render()
 
 
-        #looks like a working method
-        # call the "render" method on the SkyBox instance
+        #NOTE :: looks like a working method

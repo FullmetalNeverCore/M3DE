@@ -6,10 +6,9 @@ import pygame as pg
 import pywavefront
 from abc import ABC, abstractmethod
 
-# Defining a class named txuring
+
 class txuring:
 
-    # Initializing the class with app and tx arguments
     def __init__(self, app):
         # Setting the app as the context
         self.ctx = app
