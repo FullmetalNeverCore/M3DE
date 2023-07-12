@@ -24,28 +24,37 @@ class Space:
         # load the obj
         # ects into the scene
         self.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ') # wtl - what to load
-        self.avab_obj = {'cube':Cube(self.app,0,(0,0,0)),
-                        'OBJ':Twins(self.app,2,(0,0,0),(270,0,0))
-                        }
         self.load(self.wtl)
 
 
     def add_obj(self,cmd : list):
         try:
-            obj = self.avab_obj.get(cmd[1])
-            obj.pos = (int(cmd[2]),int(cmd[3]),int(cmd[4]))
-            self.obj.append(obj)
+            avab_obj = {'cube':Cube(self.app,0,(0,0,0)),
+                            'OBJ':Twins(self.app,2,(0,0,0),(270,0,0))
+                            }
+            model = cmd.replace("add","")[:-3]
+            coord = list(cmd.replace("add","").replace(model,""))
+            if model == "" or not len(coord) == 3:
+                 print("Model name or coord is wrong")
+            else:
+                match model:
+                     case 'cube':   
+                        obj = Cube(self.app, 0, (int(coord[0]),int(coord[1]),int(coord[2])))
+                     case 'OBJ':
+                        obj = Twins(self.app, 2, (int(coord[0]),int(coord[1]),int(coord[2])),'default',(270,0,0))
+                self.obj.append(obj)
         except Exception as e:
             print(e)
+
 
     # define a method to load the objects into the scene
     def load(self,wtl):
     
         match wtl:
             case 'cube':
-                self.obj.append(self.avab_obj.get('cube'))
+                self.obj.append(Cube(self.app, 0, (0, 0, 0)))
             case 'OBJ':
-                self.obj.append(self.avab_obj.get('OBJ'))
+                self.obj.append(Twins(self.app, 2, (0, -20, -50),'default',(270,0,0)))
             case 'few_cubes':
                         print('scene might take a while to load...')
                         self.obj =  self.obj + [Cube(self.app, 0, (x, 0, y)) for y in range(100) for x in range(100)]
@@ -58,10 +67,8 @@ class Space:
             case 'furmark':
                 self.obj = [FurMark(self.app)]
             case _:
-                  print('the model you entered is not defined.')      
-        os.system('cls' if os.name=='nt' else 'clear')     
-        print(Logo.logo())  
-        print(self.app.config)   
+                  print('the model you entered is not defined.')       
+        self.app.logo()
        
 
     #define a method to remove all objects from the scene
