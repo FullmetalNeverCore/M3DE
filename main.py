@@ -12,7 +12,10 @@ from gather import *
 from OpenGL.GL import *
 import local_neofetch
 import cpuinfo
-import msvcrt
+if platform.system() == 'Windows':
+     import msvcrt
+import selectors
+import platform
 
 
 class M3DE:
@@ -80,30 +83,49 @@ class M3DE:
 
     def cli(self):
         try:
-            if msvcrt.kbhit():
-                user_input = msvcrt.getch()
-                if ord(user_input) == 13:
-                    if 'test' in ''.join(self.cli_dump):
-                        os.system('cls' if os.name=='nt' else 'clear')
-                        print(Logo.logo())
-                        print('test')
-                        self.cli_dump = []
-                    elif 'add' in ''.join(self.cli_dump):
-                        os.system('cls' if os.name=='nt' else 'clear')
-                        print(Logo.logo())
-                        print('ADDING OBJECT TO RENDER ARRAY')
-                        self.space.add_obj(''.join(self.cli_dump))
-                        self.cli_dump = []
-                else:
-                        user_input = user_input.decode('utf-8').strip()
-                        if user_input[0] == '\x08':
-                            self.logo()
-                            try:
-                                self.cli_dump.remove(self.cli_dump[len(self.cli_dump)-1])
-                            except IndexError:
-                                print('Nothing to delete')
-                        else:
-                            self.cli_dump.append(user_input[0])
+            if platform.system() == "windows":
+                if msvcrt.kbhit():
+                    user_input = msvcrt.getch()
+                    if ord(user_input) == 13:
+                        if 'test' in ''.join(self.cli_dump):
+                            os.system('cls' if os.name=='nt' else 'clear')
+                            print(Logo.logo())
+                            print('test')
+                            self.cli_dump = []
+                        elif 'add' in ''.join(self.cli_dump):
+                            os.system('cls' if os.name=='nt' else 'clear')
+                            print(Logo.logo())
+                            print('ADDING OBJECT TO RENDER ARRAY')
+                            self.space.add_obj(''.join(self.cli_dump))
+                            self.cli_dump = []
+                    else:
+                            user_input = user_input.decode('utf-8').strip()
+                            if user_input[0] == '\x08':
+                                self.logo()
+                                try:
+                                    self.cli_dump.remove(self.cli_dump[len(self.cli_dump)-1])
+                                except IndexError:
+                                    print('Nothing to delete')
+                            else:
+                                self.cli_dump.append(user_input[0])
+            else:
+                selec = selectors.DefaultSelector()
+                selec.register(sys.stdin,selectors.EVENT_READ)
+                events = selec.select(timeout=0.001)
+                #print(f"{sys.stdin.readline().strip()}",end='\r')
+                if events:
+                        e = sys.stdin.readline().strip()
+                        if 'test' in e:
+                            os.system('cls' if os.name=='nt' else 'clear')
+                            print(Logo.logo())
+                            print('test')
+                            self.cli_dump = []
+                        elif 'add' in e:
+                            os.system('cls' if os.name=='nt' else 'clear')
+                            print(Logo.logo())
+                            print('ADDING OBJECT TO RENDER ARRAY')
+                            self.space.add_obj(e)
+                            self.cli_dump = []
         except Exception as e:
              print(e)
 
