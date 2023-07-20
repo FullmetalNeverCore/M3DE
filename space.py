@@ -26,6 +26,27 @@ class Space:
         self.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ') # wtl - what to load
         self.load(self.wtl)
 
+
+    def add_obj(self,cmd : list):
+        try:
+            avab_obj = {'cube':Cube(self.app,0,(0,0,0)),
+                            'OBJ':Twins(self.app,2,(0,0,0),(270,0,0))
+                            }
+            model = cmd.replace("add","")[:-3]
+            coord = list(cmd.replace("add","").replace(model,""))
+            if model == "" or not len(coord) == 3:
+                 print("Model name or coord is wrong")
+            else:
+                match model:
+                     case 'cube':   
+                        obj = Cube(self.app, 0, (int(coord[0]),int(coord[1]),int(coord[2])))
+                     case 'OBJ':
+                        obj = Twins(self.app, 2, (int(coord[0]),int(coord[1]),int(coord[2])),'default',(270,0,0))
+                self.obj.append(obj)
+        except Exception as e:
+            print(e)
+
+
     # define a method to load the objects into the scene
     def load(self,wtl):
     
@@ -46,9 +67,8 @@ class Space:
             case 'furmark':
                 self.obj = [FurMark(self.app)]
             case _:
-                  print('the model you entered is not defined.')      
-        os.system('cls' if os.name=='nt' else 'clear')     
-        print(Logo.logo())     
+                  print('the model you entered is not defined.')       
+        self.app.logo()
        
 
     #define a method to remove all objects from the scene
@@ -67,14 +87,15 @@ class Space:
         else:
             # call the "render" method on the SkyBox instance
             self.sb.render()
-            camera_position = self.app.cam.position
+            if len(self.obj)>0:
+                camera_position = self.app.cam.position
 
-            obj_positions = np.array([o.pos for o in self.obj])
-            distances = np.linalg.norm(obj_positions - camera_position, axis=1)
-            
-            for o, distance in zip(self.obj, distances):
-                if distance <= self.app.cam.far_distance:
-                    o.render()
+                obj_positions = np.array([o.pos for o in self.obj])
+                distances = np.linalg.norm(obj_positions - camera_position, axis=1)
+                
+                for o, distance in zip(self.obj, distances):
+                    if distance <= self.app.cam.far_distance:
+                        o.render()
 
 
         #NOTE :: looks like a working method

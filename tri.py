@@ -124,7 +124,7 @@ class Cube(Model):
 
     def update(self):
         # for moving the cube
-        #self.app.gather.tx.tx[0].use()  # update texture every frame
+        self.app.gather.tx.tx[0].use()  # update texture every frame
         self.shader_prog['model_mat'].write(self.model_mat)
         self.shader_prog['v_proj'].write(self.app.cam.view_matrix)
         self.shader_prog['camP'].write(self.app.cam.position)
@@ -260,8 +260,13 @@ class FurMark():
         self.shad_prog.sp.destroy()
 
     def update(self):
+        self.fursp['time'] = self.app.time
         self.fursp['tx_s'] = 0  # Set the texture sampler value to 0 for the default texture unit
         self.app.gather.tx.tx[3].use()  # Use texture of skybox on texture unit 0
+        self.fursp['noise'] = 1
+        self.app.gather.tx.tx[4].use(location=1)
+        self.fursp['backg'] = 2 
+        self.app.gather.tx.tx[5].use(location=2)
         
     def render(self):
         self.update()

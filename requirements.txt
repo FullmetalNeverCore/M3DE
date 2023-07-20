@@ -3,3 +3,6 @@ pygame
 pywavefront
 pyglm
 numpy
+pyautogui
+wmi
+py-cpuinfo
