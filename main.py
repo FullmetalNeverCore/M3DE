@@ -23,7 +23,6 @@ else:
 import asyncio
 
 
-
 class M3DE:
     def __init__(self, win_size=(1280,720)) -> None:
         pg.init()
@@ -57,6 +56,7 @@ class M3DE:
 
 
 
+
     # Method for handling events
     def events(self):
         for event in pg.event.get():
@@ -76,6 +76,10 @@ class M3DE:
 
     # Method for rendering the scene
     def render_scene(self):
+        ram_usage = self.get_process_stats()
+
+        print(f"           RAM usage: {ram_usage:.2f} MB",end='\r')
+        print(f' FPS:{int(self.clock.get_fps())}',end='\r')
         self.ctx.clear(color=(255,255,255))
         self.space.render()
         print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
