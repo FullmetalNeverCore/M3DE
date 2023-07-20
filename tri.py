@@ -260,8 +260,13 @@ class FurMark():
         self.shad_prog.sp.destroy()
 
     def update(self):
+        self.fursp['time'] = self.app.time
         self.fursp['tx_s'] = 0  # Set the texture sampler value to 0 for the default texture unit
         self.app.gather.tx.tx[3].use()  # Use texture of skybox on texture unit 0
+        self.fursp['noise'] = 1
+        self.app.gather.tx.tx[4].use(location=1)
+        self.fursp['backg'] = 2 
+        self.app.gather.tx.tx[5].use(location=2)
         
     def render(self):
         self.update()

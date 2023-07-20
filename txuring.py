@@ -16,7 +16,9 @@ class txuring:
         self.tx = {0:self.texturing('./tx/dirt.jpg')
                    ,1:self.texturing('./tx/red.png')
                    ,2:self.texturing('./tx/Cat_diffuse.jpg'),
-                   3:self.texturing('./tx/11133.jpg')}
+                   3:self.texturing('./tx/11133.jpg'),
+                   4:self.texturing('./tx/noise.png'),
+                   5:self.texturing('./tx/doom2.jpeg')}
         # Setting the skybox to the skybox from the skybox function
         self.sb = self.skybox('./tx/skybox/')
 

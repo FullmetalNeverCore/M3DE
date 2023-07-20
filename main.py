@@ -12,10 +12,16 @@ from gather import *
 from OpenGL.GL import *
 import local_neofetch
 import cpuinfo
+import platform
+import subprocess
 if platform.system() == 'Windows':
      import msvcrt
-import selectors
-import platform
+else:
+    import getch
+    import selectors
+    import aioconsole
+import asyncio
+
 
 
 class M3DE:
@@ -49,6 +55,8 @@ class M3DE:
                         print(Logo.logo())  
                         if conf == 0:print(self.config)
 
+
+
     # Method for handling events
     def events(self):
         for event in pg.event.get():
@@ -68,9 +76,9 @@ class M3DE:
 
     # Method for rendering the scene
     def render_scene(self):
-        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
         self.ctx.clear(color=(255,255,255))
         self.space.render()
+        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
         pg.display.flip()
 
     # Function to get CPU utilization and RAM consumption
@@ -81,9 +89,30 @@ class M3DE:
         ram_usage = mem_info.rss / (1024 * 1024)  # convert to MB
         return ram_usage
 
+    
+    def cli_linux(self):
+                selec = selectors.DefaultSelector()
+                selec.register(sys.stdin,selectors.EVENT_READ)
+                events = selec.select(timeout=0.001)
+                #print(f"{sys.stdin.readline().strip()}",end='\r')
+                if events:
+                        e = sys.stdin.readline().strip()
+                        if 'test' in e:
+                            os.system('cls' if os.name=='nt' else 'clear')
+                            print(Logo.logo())
+                            print('test')
+                            self.cli_dump = []
+                        elif 'add' in e:
+                            os.system('cls' if os.name=='nt' else 'clear')
+                            print(Logo.logo())
+                            print('ADDING OBJECT TO RENDER ARRAY')
+                            self.space.add_obj(e)
+                            self.cli_dump = []
+
+
     def cli(self):
         try:
-            if platform.system() == "windows":
+            if platform.system() == "Windows":
                 if msvcrt.kbhit():
                     user_input = msvcrt.getch()
                     if ord(user_input) == 13:
@@ -108,24 +137,6 @@ class M3DE:
                                     print('Nothing to delete')
                             else:
                                 self.cli_dump.append(user_input[0])
-            else:
-                selec = selectors.DefaultSelector()
-                selec.register(sys.stdin,selectors.EVENT_READ)
-                events = selec.select(timeout=0.001)
-                #print(f"{sys.stdin.readline().strip()}",end='\r')
-                if events:
-                        e = sys.stdin.readline().strip()
-                        if 'test' in e:
-                            os.system('cls' if os.name=='nt' else 'clear')
-                            print(Logo.logo())
-                            print('test')
-                            self.cli_dump = []
-                        elif 'add' in e:
-                            os.system('cls' if os.name=='nt' else 'clear')
-                            print(Logo.logo())
-                            print('ADDING OBJECT TO RENDER ARRAY')
-                            self.space.add_obj(e)
-                            self.cli_dump = []
         except Exception as e:
              print(e)
 
@@ -147,7 +158,10 @@ class M3DE:
             self.events()
             self.cam.update()
             self.render_scene()
-            self.cli()
+            if platform.system() == 'Windows':
+                self.cli()
+            else:
+                self.cli_linux()
             self.d_time = self.clock.tick(60)
 
 # Main entry point of the program
