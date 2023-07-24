@@ -20,7 +20,9 @@ else:
     import getch
     import selectors
     import aioconsole
-import asyncio
+import threading
+import points 
+
 
 
 class M3DE:
@@ -44,6 +46,7 @@ class M3DE:
         self.time = 0
         self.d_time = 0
         self.cli_dump = []
+        self.bench = points.Benchmark()
         self.ram_usage = self.get_process_stats()
         # Framerate and delta time   
         self.clock = pg.time.Clock()
@@ -55,7 +58,20 @@ class M3DE:
                         if conf == 0:print(self.config)
 
 
-
+    #linux solution
+    def get_cpu_temperature(self):
+        if not platform.system() == 'windows':
+            try:
+                output = subprocess.check_output(["sensors"])
+                for line in output.splitlines():
+                    line = line.decode()
+                    if "Core" in line:
+                        temperature_str = line.split(":")[-1].strip().split(" ")[0]
+                        return temperature_str
+            except Exception as e:
+                return e
+        else:
+            return 'No windows solution was implemented for now.'
 
     # Method for handling events
     def events(self):
@@ -74,15 +90,22 @@ class M3DE:
     def space_time(self):
         self.time = pg.time.get_ticks() * 0.001
 
+    def benchmark_sched(self):
+        self.space.destroy()
+        self.gather.destroy()
+        pg.quit()
+        print('Benchmarking complete.')
+        print(f'Avarage FPS: {self.bench.avarage_fps()}')
+        print(f'PC score: {self.bench.count_points()}')
+        sys.exit()
+
     # Method for rendering the scene
     def render_scene(self):
-        ram_usage = self.get_process_stats()
-
-        print(f"           RAM usage: {ram_usage:.2f} MB",end='\r')
-        print(f' FPS:{int(self.clock.get_fps())}',end='\r')
+        if self.space.wtl == 'furmark':
+            self.bench.fps_count.append(self.clock.get_fps())
+        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
         self.ctx.clear(color=(255,255,255))
         self.space.render()
-        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
         pg.display.flip()
 
     # Function to get CPU utilization and RAM consumption
@@ -157,6 +180,10 @@ class M3DE:
         self.gather = Gather(self)
         #Space
         self.space = Space(self)
+        if self.space.wtl == 'furmark':
+            #Benchmarking
+            thrd = threading.Timer(15,self.benchmark_sched)
+            thrd.start()   
         while True:
             self.space_time()
             self.events()
@@ -166,7 +193,7 @@ class M3DE:
                 self.cli()
             else:
                 self.cli_linux()
-            self.d_time = self.clock.tick(60)
+            self.d_time = self.clock.tick(500)
 
 # Main entry point of the program
 if __name__ == '__main__':
