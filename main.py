@@ -51,6 +51,8 @@ class M3DE:
         self.ram_usage = self.get_process_stats()
         # Framerate and delta time   
         self.clock = pg.time.Clock()
+        self.finish = False 
+        self.stop_event = threading.Event()
 
 
     def logo(self,conf=0):
@@ -90,15 +92,15 @@ class M3DE:
     # Method for getting time
     def space_time(self):
         self.time = pg.time.get_ticks() * 0.001
-
+         
     def benchmark_sched(self):
-        self.space.destroy()
-        self.gather.destroy()
-        pg.quit()
+        #pg.quit()
         print('Benchmarking complete.')
         print(f'Avarage FPS: {self.bench.avarage_fps()}')
         print(f'PC score: {self.bench.count_points()}')
-        sys.exit()
+        self.finish = True
+        self.stop_event.set()
+
 
     # Method for rendering the scene
     def render_scene(self):
@@ -200,8 +202,12 @@ class M3DE:
         if self.space.wtl == 'furmark':
             #Benchmarking
             thrd = threading.Timer(15,self.benchmark_sched)
+            thrd.daemon = True  
             thrd.start()   
         while True:
+            if self.finish:
+                 print('Finished!')
+                 sys.exit()
             self.space_time()
             self.events()
             self.cam.update()
