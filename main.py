@@ -20,7 +20,6 @@ else:
     import getch
     import selectors
     import aioconsole
-    import signal
 import threading
 import points 
 
@@ -47,13 +46,11 @@ class M3DE:
         self.time = 0
         self.d_time = 0
         self.cli_dump = []
+        self.status = 'run'
         self.bench = points.Benchmark()
         self.ram_usage = self.get_process_stats()
         # Framerate and delta time   
         self.clock = pg.time.Clock()
-        self.finish = False 
-        self.stop_event = threading.Event()
-
 
 
     def logo(self,conf=0):
@@ -95,12 +92,13 @@ class M3DE:
         self.time = pg.time.get_ticks() * 0.001
 
     def benchmark_sched(self):
-        #pg.quit()
+        self.space.destroy()
+        self.gather.destroy()
+        pg.quit()
         print('Benchmarking complete.')
         print(f'Avarage FPS: {self.bench.avarage_fps()}')
         print(f'PC score: {self.bench.count_points()}')
-        self.finish = True
-        self.stop_event.set()
+        sys.exit()
 
     # Method for rendering the scene
     def render_scene(self):
@@ -132,6 +130,15 @@ class M3DE:
                             print(Logo.logo())
                             print('test')
                             self.cli_dump = []
+                        elif 'stop' in e:
+                            #[x.destroy() for x in self.space.obj]
+                            self.space.obj = []
+                            self.space.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ')
+                            if self.space.wtl == 'furmark':
+                                #Benchmarking
+                                thrd = threading.Timer(15,self.benchmark_sched)
+                                thrd.start() 
+                            self.space.load(self.space.wtl)
                         elif 'add' in e:
                             os.system('cls' if os.name=='nt' else 'clear')
                             print(Logo.logo())
@@ -172,26 +179,29 @@ class M3DE:
 
 
     # Main loop of the program
-    def run(self):
+    def run(self,rraw=0):
+        if rraw==1:
+            self.status = 'benchmark'
         self.logo(1)
         # Camera
-        self.cam = Cam(self,input("Draw distance: "))
+        self.cam = Cam(self,input("Draw distance: ") if rraw == 0 else 0)
         # LIGHT
         self.bulb = Bulb()
         # Triangles 
         #Gather
         self.gather = Gather(self)
         #Space
-        self.space = Space(self)
+        if rraw==0:
+            self.space = Space(self)
+        else:
+            self.space = Space(self,1)
+            self.space.wtl = 'furmark'
+            self.space.load(self.space.wtl)
         if self.space.wtl == 'furmark':
             #Benchmarking
             thrd = threading.Timer(15,self.benchmark_sched)
-            thrd.daemon = True  
             thrd.start()   
         while True:
-            if self.finish:
-                 print('Finished!')
-                 sys.exit()
             self.space_time()
             self.events()
             self.cam.update()
@@ -204,4 +214,5 @@ class M3DE:
 
 # Main entry point of the program
 if __name__ == '__main__':
-    M3DE().run()
+    print(sys.argv)
+    M3DE().run(1 if '-bm' in sys.argv else 0)

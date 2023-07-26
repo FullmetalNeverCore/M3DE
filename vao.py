@@ -25,7 +25,10 @@ class general_VAO():
         self.app = app
         self.sp = shader_program(self.app)
         self.vbo = general_VBO(self.app)
-        self.fog = True if input('Use fog (y/n)? ') == 'y' else False 
+        if self.app.status == 'run':
+            self.fog = True if input('Use fog (y/n)? ') == 'y' else False 
+        else:
+            self.fog = False
         self.fursp = self.sp.obj['furmark']
         self.new_sp = self.sp.obj['default'] if not self.fog else self.sp.obj['fog_default']
         self.new_sbsp = self.sp.obj['skybox'] if not self.fog else self.sp.obj['fog_skybox']

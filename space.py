@@ -14,7 +14,7 @@ import moderngl as mgl
 
 class Space:
 
-    def __init__(self, app):
+    def __init__(self, app,rraw=0):
         # store a reference to the application instance
         self.app = app
         # create an empty list to hold the objects in the scene
@@ -23,8 +23,11 @@ class Space:
         self.sb = SkyBox(app,0,(0,0,0))
         # load the obj
         # ects into the scene
-        self.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ') # wtl - what to load
-        self.load(self.wtl)
+        #run right a way,a solution to run Space class without initializing the models
+        self.wtl = 'none'
+        if rraw==0:
+            self.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ') # wtl - what to load
+            self.load(self.wtl)
 
 
     def add_obj(self,cmd : list):
