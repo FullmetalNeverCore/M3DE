@@ -6,3 +6,5 @@ numpy
 pyautogui
 wmi
 py-cpuinfo
+PyOpenGL
+moderngl_window
