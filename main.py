@@ -1,16 +1,16 @@
 import pygame as pg
 import moderngl as mgl
 import sys
-from tri import *
-from cam import Cam
-from bulb import Bulb
-from space import *
+from components.tri import *
+from components.cam import Cam
+from components.bulb import Bulb
+from components.space import *
 import os
-from logo import *
+from components.logo import *
 import psutil
-from gather import *
+from components.gather import *
 from OpenGL.GL import *
-import local_neofetch
+import components.local_neofetch
 import cpuinfo
 import platform
 import subprocess
@@ -20,7 +20,9 @@ else:
     import getch
     import selectors
     import aioconsole
-import asyncio
+import threading
+import components.points 
+
 
 
 class M3DE:
@@ -39,14 +41,18 @@ class M3DE:
         #glViewport(0, 0, 1280, 700) # OpenGL render screen size
         self.ctx = mgl.create_context()
         self.ctx.enable(flags=mgl.DEPTH_TEST) # CULL_FACE to not render invisible
-        self.config = local_neofetch.HardwareStat().template()
+        self.config = components.local_neofetch.HardwareStat().template()
         # Time
         self.time = 0
         self.d_time = 0
         self.cli_dump = []
+        self.status = 'run'
+        self.bench = components.points.Benchmark()
         self.ram_usage = self.get_process_stats()
         # Framerate and delta time   
         self.clock = pg.time.Clock()
+        self.finish = False 
+        self.stop_event = threading.Event()
 
 
     def logo(self,conf=0):
@@ -55,7 +61,20 @@ class M3DE:
                         if conf == 0:print(self.config)
 
 
-
+    #linux solution
+    def get_cpu_temperature(self):
+        if not platform.system() == 'windows':
+            try:
+                output = subprocess.check_output(["sensors"])
+                for line in output.splitlines():
+                    line = line.decode()
+                    if "Core" in line:
+                        temperature_str = line.split(":")[-1].strip().split(" ")[0]
+                        return temperature_str
+            except Exception as e:
+                return e
+        else:
+            return 'No windows solution was implemented for now.'
 
     # Method for handling events
     def events(self):
@@ -73,16 +92,23 @@ class M3DE:
     # Method for getting time
     def space_time(self):
         self.time = pg.time.get_ticks() * 0.001
+         
+    def benchmark_sched(self):
+        #pg.quit()
+        print('Benchmarking complete.')
+        print(f'Avarage FPS: {self.bench.avarage_fps()}')
+        print(f'PC score: {self.bench.count_points()}')
+        self.finish = True
+        self.stop_event.set()
+
 
     # Method for rendering the scene
     def render_scene(self):
-        ram_usage = self.get_process_stats()
-
-        print(f"           RAM usage: {ram_usage:.2f} MB",end='\r')
-        print(f' FPS:{int(self.clock.get_fps())}',end='\r')
+        if self.space.wtl == 'furmark':
+            self.bench.fps_count.append(self.clock.get_fps())
+        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
         self.ctx.clear(color=(255,255,255))
         self.space.render()
-        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
         pg.display.flip()
 
     # Function to get CPU utilization and RAM consumption
@@ -106,6 +132,15 @@ class M3DE:
                             print(Logo.logo())
                             print('test')
                             self.cli_dump = []
+                        elif 'stop' in e:
+                            #[x.destroy() for x in self.space.obj]
+                            self.space.obj = []
+                            self.space.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ')
+                            if self.space.wtl == 'furmark':
+                                #Benchmarking
+                                thrd = threading.Timer(15,self.benchmark_sched)
+                                thrd.start() 
+                            self.space.load(self.space.wtl)
                         elif 'add' in e:
                             os.system('cls' if os.name=='nt' else 'clear')
                             print(Logo.logo())
@@ -146,18 +181,33 @@ class M3DE:
 
 
     # Main loop of the program
-    def run(self):
+    def run(self,rraw=0):
+        if rraw==1:
+            self.status = 'benchmark'
         self.logo(1)
         # Camera
-        self.cam = Cam(self,input("Draw distance: "))
+        self.cam = Cam(self,input("Draw distance: ") if rraw == 0 else 0)
         # LIGHT
         self.bulb = Bulb()
         # Triangles 
         #Gather
         self.gather = Gather(self)
         #Space
-        self.space = Space(self)
+        if rraw==0:
+            self.space = Space(self)
+        else:
+            self.space = Space(self,1)
+            self.space.wtl = 'furmark'
+            self.space.load(self.space.wtl)
+        if self.space.wtl == 'furmark':
+            #Benchmarking
+            thrd = threading.Timer(15,self.benchmark_sched)
+            thrd.daemon = True  
+            thrd.start()   
         while True:
+            if self.finish:
+                 print('Finished!')
+                 sys.exit()
             self.space_time()
             self.events()
             self.cam.update()
@@ -166,8 +216,9 @@ class M3DE:
                 self.cli()
             else:
                 self.cli_linux()
-            self.d_time = self.clock.tick(60)
+            self.d_time = self.clock.tick(500)
 
 # Main entry point of the program
 if __name__ == '__main__':
-    M3DE().run()
+    print(sys.argv)
+    M3DE().run(1 if '-bm' in sys.argv else 0)
