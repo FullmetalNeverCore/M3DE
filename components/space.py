@@ -20,7 +20,7 @@ class Space:
         # create an empty list to hold the objects in the scene
         self.obj = []
         # create a SkyBox instance
-        self.sb = SkyBox(app,0,(0,0,0))
+        self.sb = SkyBox(app,0,(0,0,0)) if self.app.uogl == 'y' else 'pass'
         # load the obj
         # ects into the scene
         #run right a way,a solution to run Space class without initializing the models
@@ -54,6 +54,8 @@ class Space:
     def load(self,wtl):
     
         match wtl:
+            case 'voxel':
+                self.obj = [VoxelMapRender(self.app)]
             case 'cube':
                 self.obj.append(Cube(self.app, 0, (0, 0, 0)))
             case 'OBJ':
@@ -77,13 +79,13 @@ class Space:
     #define a method to remove all objects from the scene
     def destroy(self):
         #call the "destroy" method on each object in the "obj" list
-        self.sb.destroy()
+        if self.app.uogl == 'y':self.sb.destroy()
         [x.destroy() for x in self.obj]
 
 
     #  define a method to render the objects in the scene
     def render(self):
-        if self.wtl == 'furmark':
+        if self.wtl == 'furmark' or self.wtl == 'voxel':
             for o in self.obj:
                 o.render()
 

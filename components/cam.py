@@ -1,6 +1,8 @@
 import glm
 import pygame as pg
 import numpy as np
+import math 
+
 class Cam:
     def __init__(self, app,dist=35):
         self.app = app
@@ -13,10 +15,57 @@ class Cam:
         self.fov = 100
         self.near_distance = 0.1  # Near plane distance
         self.far_distance = float(dist)
+
+        #raycasting
+        self.rfov = math.pi/2 #raycasting fov
+        self.rhfov = self.rfov / 2 # raycasting height fov
+        self.campos = np.array([0,0],dtype=float)
+        self.camheight = 270
+        self.campitch = 40
+        self.cam_angle = math.pi/4
+        self.nrays = self.app.WIN_SIZE[0]
+        self.delta_angle = self.rfov /self.nrays
+        self.ray_dist = 2000
+        self.scale = 900
+        self.screen_array = np.full((self.app.WIN_SIZE[0],self.app.WIN_SIZE[1],3),(0,0,0))
+        
+        #raycasting control 
+        self.ang_v = 0.1
+        self.vel = 6
+
         # calculate aspect ratio of screen
         self.aspect_rat = app.WIN_SIZE[0] / app.WIN_SIZE[1] # gets aspect ratio of screen
-        self.view_matrix = self.get_v_matrix() # gets the view matrix for the camera
-        self.proj_matrix = self.get_p_matrix() # gets the projection matrix for the camera
+        if self.app.uogl == 'y':
+            self.view_matrix = self.get_v_matrix() # gets the view matrix for the camera
+            self.proj_matrix = self.get_p_matrix() # gets the projection matrix for the camera
+
+
+    def ray_move(self):
+        sina = math.sin(self.cam_angle)
+        cosa = math.cos(self.cam_angle)
+
+        if pg.key.get_pressed()[pg.K_UP]:
+            self.campitch += self.vel
+        if pg.key.get_pressed()[pg.K_DOWN]:
+            self.campitch -= self.vel
+        if pg.key.get_pressed()[pg.K_LEFT]:
+            self.cam_angle -= self.ang_v
+        if pg.key.get_pressed()[pg.K_RIGHT]:
+            self.cam_angle += self.ang_v
+
+        if pg.key.get_pressed()[pg.K_w]:
+            self.campos[0] += self.vel * cosa 
+            self.campos[1] += self.vel * sina
+        if pg.key.get_pressed()[pg.K_s]:
+            self.campos[0] -= self.vel * cosa 
+            self.campos[1] -= self.vel * sina
+        if pg.key.get_pressed()[pg.K_a]:
+            self.campos[0] -= self.vel * cosa 
+            self.campos[1] += self.vel * sina
+        if pg.key.get_pressed()[pg.K_d]:
+            self.campos[0] += self.vel * cosa 
+            self.campos[1] -= self.vel * sina
+        
 
 
     def rotate(self):
@@ -38,13 +87,16 @@ class Cam:
         self.up = glm.normalize(glm.cross(self.right, self.forw)) # calculates the up direction of the camera
     
     def update(self):
-        self.move() 
-        # updates camera position based on user input
-        self.rotate() 
-        # updates camera rotation based on user input
-        self.update_camera_vectors() 
-        # updates camera vectors based on current rotation
-        self.view_matrix = self.get_v_matrix() 
+        if not self.app.uogl == 'y':
+            self.ray_move()
+        else:
+            self.move()
+            # updates camera position based on user input
+            self.rotate() 
+            # updates camera rotation based on user input
+            self.update_camera_vectors() 
+            # updates camera vectors based on current rotation
+            self.view_matrix = self.get_v_matrix() 
         #print(self.view_matrix)
         #print(self.proj_matrix)
         # updates the view matrix based on the camera's current position and orientation
