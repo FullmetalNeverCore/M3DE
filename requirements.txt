@@ -8,3 +8,8 @@ wmi
 py-cpuinfo
 moderngl_window
 PyOpenGL
+numba
+noise
+matplotlib
+getch
+aioconsole

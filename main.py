@@ -22,11 +22,13 @@ else:
     import aioconsole
 import threading
 import components.points 
-
+import numba
 
 
 class M3DE:
     def __init__(self, win_size=(1280,720)) -> None:
+        self.uogl =  input("Use OpenGL? (y/n)")#use opengl?
+        if self.uogl == 'y':print('WARNING: Without OGL some scenes will not work!')
         pg.init()
         # OpenGL attributes
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION,3)
@@ -36,11 +38,15 @@ class M3DE:
         # Window size
         self.WIN_SIZE = win_size
         # Create OpenGL context
-        self.screen = pg.display.set_mode(self.WIN_SIZE, flags= pygame.OPENGL| pg.DOUBLEBUF)
+        if self.uogl == 'y':
+            self.screen = pg.display.set_mode(self.WIN_SIZE, flags= pygame.OPENGL| pg.DOUBLEBUF)
+        else:
+            self.screen = pg.display.set_mode(self.WIN_SIZE,pg.SCALED)
         # Detect and use existing OpenGL context
         #glViewport(0, 0, 1280, 700) # OpenGL render screen size
-        self.ctx = mgl.create_context()
-        self.ctx.enable(flags=mgl.DEPTH_TEST) # CULL_FACE to not render invisible
+        if self.uogl == 'y':
+            self.ctx = mgl.create_context()
+            self.ctx.enable(flags=mgl.DEPTH_TEST) # CULL_FACE to not render invisible
         self.config = components.local_neofetch.HardwareStat().template()
         # Time
         self.time = 0
@@ -81,12 +87,12 @@ class M3DE:
         for event in pg.event.get():
             if (event.type == pg.KEYDOWN and event.key == pg.K_z) or event.type == pg.QUIT:
                 self.space.destroy()
-                self.gather.destroy()
+                if self.uogl == 'y':sself.gather.destroy()
                 pg.quit()
                 sys.exit()
             elif (event.type == pg.KEYDOWN and event.key == pg.K_x):
                 self.space.destroy()
-                self.gather.destroy()
+                if self.uogl == 'y':self.gather.destroy()
                 self.run()
 
     # Method for getting time
@@ -107,7 +113,8 @@ class M3DE:
         if self.space.wtl == 'furmark':
             self.bench.fps_count.append(self.clock.get_fps())
         print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
-        self.ctx.clear(color=(255,255,255))
+        if self.uogl == 'y':
+            self.ctx.clear(color=(255,255,255))
         self.space.render()
         pg.display.flip()
 
@@ -187,12 +194,13 @@ class M3DE:
         self.logo(1)
         # Camera
         self.cam = Cam(self,input("Draw distance: ") if rraw == 0 else 0)
-        # LIGHT
-        self.bulb = Bulb()
-        # Triangles 
-        #Gather
-        self.gather = Gather(self)
-        #Space
+        if self.uogl == 'y':
+            # LIGHT
+            self.bulb = Bulb()
+            # Triangles 
+            #Gather
+            self.gather = Gather(self)  
+            #Space
         if rraw==0:
             self.space = Space(self)
         else:
