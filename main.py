@@ -26,8 +26,12 @@ import numba
 
 
 class M3DE:
-    def __init__(self, win_size=(1280,720)) -> None:
-        self.uogl =  input("Use OpenGL? (y/n)")#use opengl?
+    def __init__(self, win_size=(1280,720),uoglcmd=0) -> None:
+        self.uoglcmd = uoglcmd
+        if uoglcmd == 0:
+            self.uogl =  input("Use VoxelEngine? (y/n)")#use opengl?
+        else:
+            self.uogl = 'n'
         if self.uogl == 'y':print('WARNING: Without OGL some scenes will not work!')
         pg.init()
         # OpenGL attributes
@@ -193,7 +197,7 @@ class M3DE:
             self.status = 'benchmark'
         self.logo(1)
         # Camera
-        self.cam = Cam(self,input("Draw distance: ") if rraw == 0 else 0)
+        self.cam = Cam(self,input("Draw distance: ") if rraw or self.uoglcmd == 0 else 0)
         if self.uogl == 'y':
             # LIGHT
             self.bulb = Bulb()
@@ -229,4 +233,4 @@ class M3DE:
 # Main entry point of the program
 if __name__ == '__main__':
     print(sys.argv)
-    M3DE().run(1 if '-bm' in sys.argv else 0)
+    M3DE(uoglcmd=1 if '-voxel' in sys.argv else 0).run(rraw=1 if '-bm' in sys.argv else 0)
