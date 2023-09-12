@@ -29,10 +29,10 @@ class M3DE:
     def __init__(self, win_size=(1280,720),uoglcmd=0) -> None:
         self.uoglcmd = uoglcmd
         if uoglcmd == 0:
-            self.uogl =  input("Use VoxelEngine? (y/n)")#use opengl?
+            self.uogl =  input("Deactivate VoxelEngine? (y/n)")#use opengl?
         else:
             self.uogl = 'n'
-        if self.uogl == 'y':print('WARNING: Without OGL some scenes will not work!')
+        if self.uogl == 'n':print('WARNING: Without OGL some scenes will not work!')
         pg.init()
         # OpenGL attributes
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION,3)
@@ -91,7 +91,7 @@ class M3DE:
         for event in pg.event.get():
             if (event.type == pg.KEYDOWN and event.key == pg.K_z) or event.type == pg.QUIT:
                 self.space.destroy()
-                if self.uogl == 'y':sself.gather.destroy()
+                if self.uogl == 'y':self.gather.destroy()
                 pg.quit()
                 sys.exit()
             elif (event.type == pg.KEYDOWN and event.key == pg.K_x):
@@ -197,7 +197,7 @@ class M3DE:
             self.status = 'benchmark'
         self.logo(1)
         # Camera
-        self.cam = Cam(self,input("Draw distance: ") if rraw or self.uoglcmd == 0 else 0)
+        self.cam = Cam(self,input("Draw distance: ") if rraw or self.uoglcmd == 0 and self.uogl == 'y' else 0)
         if self.uogl == 'y':
             # LIGHT
             self.bulb = Bulb()

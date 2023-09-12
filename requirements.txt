@@ -13,3 +13,4 @@ noise
 matplotlib
 getch
 aioconsole
+matplotlib
