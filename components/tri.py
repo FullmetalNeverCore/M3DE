@@ -280,11 +280,17 @@ class FurMark():
 
 class VoxelMapRender():
 
-    def __init__(self, app):
+    def __init__(self, app,mode='gen'):
         self.app = app
-        noise = Perlin().generate_and_visualize_maps(1024, 1024, 750, 54, 0.4, 4, save_path="./tx/maps/")
-        h_map_img = pg.image.load(f'./tx/maps/height_map_{noise}.png')
-        c_map_img = pg.image.load(f'./tx/maps/color_map_{noise}.png')
+        noise = Perlin().generate_and_visualize_maps(1024, 1024, 200, 34, 0.4, 4, save_path="./tx/maps/")
+        maps = [[f'./tx/maps/height_map_{noise}.png',f'./tx/maps/color_map_{noise}.png'],
+                [f'./tx/maps/height_map.jpg',f'./tx/maps/color_map.jpg']]
+        if mode == 'gen':
+            h_map_img = pg.image.load(maps[0][0]) 
+            c_map_img = pg.image.load(maps[0][1]) 
+        else:
+            h_map_img = pg.image.load(maps[1][0]) 
+            c_map_img = pg.image.load(maps[1][1])         
         self.hmap = pg.surfarray.array3d(h_map_img)
         self.cmap = pg.surfarray.array3d(c_map_img)
         self.mheight =  len(self.hmap[0])

@@ -25,8 +25,9 @@ class Space:
         # ects into the scene
         #run right a way,a solution to run Space class without initializing the models
         self.wtl = 'none'
+        self.models = 'cube,OBJ,few_cubes,few_objs' if self.app.uogl == 'y' else 'voxel-gen,voxel1,voxel2'
         if rraw==0:
-            self.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ') # wtl - what to load
+            self.wtl = input(f'Current models - {self.models}') # wtl - what to load
             self.load(self.wtl)
 
 
@@ -52,27 +53,51 @@ class Space:
 
     # define a method to load the objects into the scene
     def load(self,wtl):
-    
-        match wtl:
-            case 'voxel':
-                self.obj = [VoxelMapRender(self.app)]
-            case 'cube':
-                self.obj.append(Cube(self.app, 0, (0, 0, 0)))
-            case 'OBJ':
-                self.obj.append(Twins(self.app, 2, (0, -20, -50),'default',(270,0,0)))
-            case 'few_cubes':
-                        print('scene might take a while to load...')
-                        self.obj =  self.obj + [Cube(self.app, 0, (x, 0, y)) for y in range(100) for x in range(100)]
-                                  
-            case 'few_objs':
-                        print('scene might take a while to load...')
-                        self.obj = [Twins(self.app, 2, (0+x, 0-x, 0+x),'default',(270,0,0)) for x in range(10)]
-            case 'scene':
-                print('loading scene...')
-            case 'furmark':
-                self.obj = [FurMark(self.app)]
-            case _:
-                  print('the model you entered is not defined.')       
+        print(wtl)
+        while True:
+            if self.app.uogl == 'n':
+                match wtl:
+                    case 'voxel-gen':
+                        self.obj = [VoxelMapRender(self.app,'gen')]
+                        break
+                    case 'voxel1':
+                        self.obj = [VoxelMapRender(self.app,'1')]
+                        break
+                    case 'voxel2':
+                        self.obj = [VoxelMapRender(self.app,'2')]
+                        break
+                    case _:
+                        print('the model you entered is not defined.')   
+                        wtl = input(f'Current models - {self.models}') 
+                        continue 
+        
+            else:
+                match wtl:
+                    case 'cube':
+                        self.obj.append(Cube(self.app, 0, (0, 0, 0)))
+                        break
+                    case 'OBJ':
+                        self.obj.append(Twins(self.app, 2, (0, -20, -50),'default',(270,0,0)))
+                        break
+                    case 'few_cubes':
+                                print('scene might take a while to load...')
+                                self.obj =  self.obj + [Cube(self.app, 0, (x, 0, y)) for y in range(100) for x in range(100)]
+                                break
+                                        
+                    case 'few_objs':
+                                print('scene might take a while to load...')
+                                self.obj = [Twins(self.app, 2, (0+x, 0-x, 0+x),'default',(270,0,0)) for x in range(10)]
+                                break
+                    case 'scene':
+                        print('loading scene...')
+                    case 'furmark':
+                        self.obj = [FurMark(self.app)]
+                        break
+                    case _:
+                        print('the model you entered is not defined.')   
+                        wtl = f'Current models - {self.models}'
+                        continue
+        self.final = wtl
         self.app.logo()
        
 
@@ -85,7 +110,8 @@ class Space:
 
     #  define a method to render the objects in the scene
     def render(self):
-        if self.wtl == 'furmark' or self.wtl == 'voxel':
+        mods = ['voxel-gen','voxel1','voxel2','furmark']
+        if self.final in mods:
             for o in self.obj:
                 o.render()
 
