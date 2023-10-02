@@ -8,8 +8,9 @@ from matplotlib.colors import LinearSegmentedColormap
 class Perlin:
     def __init__(self)->None:
         pass 
-    def generate_height_map(self,width, height, scale, octaves, persistence, lacunarity):
-        seed = random.randint(0, 1000)  # Generate a random seed
+    
+    def generate_height_map(self,width : int, height : int , scale : int, octaves : float , persistence : float, lacunarity : int):
+        seed = random.randint(0, 99999)  # Generate a random seed
         height_map = np.zeros((height, width))
         for i in range(height):
             for j in range(width):
@@ -23,7 +24,7 @@ class Perlin:
                                                 base=seed)
         return height_map
         
-    def custom_color_map(self,height_map):
+    def custom_color_map(self,height_map : list):
         colors = [
             (36/255,41/255, 4/255),
             (58/255, 66/255, 9/255),
@@ -37,12 +38,11 @@ class Perlin:
             (255/255, 255/255, 255/255)  # White for snow
         ]
 
-
-        n_bins = [100] * len(colors)  # Number of bins for each color
         cmap_name = 'scenery'
         cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=256)
         return cm(height_map)
-    def generate_and_visualize_maps(self,width, height, scale, octaves, persistence, lacunarity,save_path):
+
+    def generate_and_visualize_maps(self,width : int, height : int , scale : int, octaves : float , persistence : float, lacunarity : int,save_path : str):
         height_map = self.generate_height_map(width, height, scale, octaves, persistence, lacunarity)
 
         randint = random.randint(0,99999999)
