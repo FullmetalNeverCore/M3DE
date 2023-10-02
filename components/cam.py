@@ -44,6 +44,8 @@ class Cam:
         sina = math.sin(self.cam_angle)
         cosa = math.cos(self.cam_angle)
 
+        #Cam control for raycasting engine
+
         if pg.key.get_pressed()[pg.K_UP]:
             self.campitch += self.vel
         if pg.key.get_pressed()[pg.K_DOWN]:
