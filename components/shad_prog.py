@@ -7,21 +7,21 @@ from abc import ABC, abstractmethod
 # Define an abstract base class for the shader program interface
 class shader_program_interface(ABC):
 
-    # Define an abstract method for destroying the shader program
+
     @abstractmethod
     def destroy(self):
         raise NotImplementedError
     
-    # Define an abstract method for getting the shader file
+
     @abstractmethod
     def g_shader_file(self):
         raise NotImplementedError
 
-# Define a concrete implementation of the shader program interface
+
 class shader_program(shader_program_interface):
     
     # Initialize the shader program
-    def __init__(self,app):
+    def __init__(self,app)->None:
         self.app = app  
         self.obj = {}
         self.obj['default'] = self.g_shader_file('default') # Get the default shader file
@@ -31,14 +31,14 @@ class shader_program(shader_program_interface):
         self.obj['furmark'] = self.g_shader_file('furmark')
      
     # Destroy the shader program
-    def destroy(self):
+    def destroy(self)->None:
         [p.release() for p in self.obj.values()] 
     
     # Get the shader file
-    def g_shader_file(self,shader):
+    def g_shader_file(self,shader)->'Shader Program':
         print('reading shader_file...')
         with open(f'./shaders/{shader}.vert') as file:
-            vert_shad = file.read()       # Read the vertex shader
+            vert_shad = file.read()     
         with open(f'./shaders/{shader}.frag') as file:
-            frag_shad = file.read()       # Read the fragment shader
+            frag_shad = file.read()      
         return self.app.ctx.program(vertex_shader=vert_shad,fragment_shader=frag_shad)  # Return the program

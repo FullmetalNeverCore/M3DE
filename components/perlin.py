@@ -9,7 +9,8 @@ class Perlin:
     def __init__(self)->None:
         pass 
     
-    def generate_height_map(self,width : int, height : int , scale : int, octaves : float , persistence : float, lacunarity : int):
+    #generate heignt map
+    def generate_height_map(self,width : int, height : int , scale : int, octaves : float , persistence : float, lacunarity : int)->'Height Map':
         seed = random.randint(0, 99999)  # Generate a random seed
         height_map = np.zeros((height, width))
         for i in range(height):
@@ -24,7 +25,8 @@ class Perlin:
                                                 base=seed)
         return height_map
         
-    def custom_color_map(self,height_map : list):
+    #color map based on height map
+    def custom_color_map(self,height_map : list)->'LinearSegmentedColormap':
         colors = [
             (36/255,41/255, 4/255),
             (58/255, 66/255, 9/255),

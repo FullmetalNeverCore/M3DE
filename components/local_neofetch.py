@@ -56,7 +56,7 @@ class HardwareStat:
                 except Exception:
                     return "No display was found"
         
-    def os(self):
+    def os(self)->'OS':
         try:
             if platform.system() == "Linux":
                 return [f'{platform.system()}',f'{platform.release()}']
@@ -68,13 +68,13 @@ class HardwareStat:
                 return [f'{platform.system()}',f'None']
             return [None,None]
     
-    def cpu(self):
+    def cpu(self)->'CPU':
         try:
             return cpuinfo.get_cpu_info()['brand_raw']
         except:
             return None
         
-    def sys_man(self):
+    def sys_man(self)->'SYSTEM VENDOR':
         try:
             if platform.system() == "Linux":
                 try:
@@ -100,7 +100,7 @@ class HardwareStat:
 
 
     #test solution only.
-    def get_gpu_name(self):
+    def get_gpu_name(self)->'GPU':
         system = platform.system()
         
         if system == 'Windows':

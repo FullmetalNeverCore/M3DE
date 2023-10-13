@@ -108,7 +108,7 @@ class SkyBoxModel(ABC):
 
 class Cube(Model):
 
-    def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0)):
+    def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0))->None:
         super().__init__(app,txid,pos,sh_name,rotat)
         # creates a Vertex Buffer Object and sets it to the vbo_obj attribute
         self.vbo = self.app.gather.vao.vbo.vbo_d['cube']
@@ -117,18 +117,18 @@ class Cube(Model):
         self.on_init()
 
     #model matrix
-    def get_model_m(self):
+    def get_model_m(self)->None:
         model = glm.mat4()
         model = glm.translate(model,self.pos)
         # rotate
-        model = glm.rotate(model, self.rotat.z, glm.vec3(0, 0, 1))
-        model = glm.rotate(model, self.rotat.y, glm.vec3(0, 1, 0))
-        model = glm.rotate(model, self.rotat.x, glm.vec3(1, 0, 0))
+        # model = glm.rotate(model, self.rotat.z, glm.vec3(0, 0, 1))
+        # model = glm.rotate(model, self.rotat.y, glm.vec3(0, 1, 0))
+        # model = glm.rotate(model, self.rotat.x, glm.vec3(1, 0, 0))
         return model 
     
 
 
-    def update(self):
+    def update(self)->None:
         # for moving the cube
         self.app.gather.tx.tx[0].use()  # update texture every frame
         self.shader_prog['model_mat'].write(self.model_mat)
@@ -136,7 +136,7 @@ class Cube(Model):
         self.shader_prog['camP'].write(self.app.cam.position)
         
 
-    def on_init(self):
+    def on_init(self)->None:
         #bulb 
         self.shader_prog['bulb.pos'].write(self.app.bulb.pos)
         self.shader_prog['bulb.amb'].write(self.app.bulb.amb)
@@ -151,19 +151,19 @@ class Cube(Model):
 
 
     #render model
-    def render(self):
+    def render(self)->None:
         #if datetime.datetime.now().second % 2 == 0:
         self.update()
         self.vao.render()
 
-    def destroy(self):
+    def destroy(self)->None:
         self.base_vao.destroy()
 
 
 
 class Twins(Model):
 
-    def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0)):
+    def __init__(self,app,txid,pos=(0,0,0),sh_name="default",rotat=(0, 0, 0))->None:
         super().__init__(app,txid,pos,sh_name,rotat)
         # creates a Vertex Buffer Object and sets it to the vbo_obj attribute
         self.vbo = self.app.gather.vao.vbo.vbo_d['twins']
@@ -172,24 +172,24 @@ class Twins(Model):
         self.on_init()
 
     #model matrix
-    def get_model_m(self):
+    def get_model_m(self)->None:
         model = glm.mat4()
         model = glm.translate(model,self.pos)
         # rotate
-        model = glm.rotate(model, self.rotat.z, glm.vec3(0, 0, 1))
-        model = glm.rotate(model, self.rotat.y, glm.vec3(0, 1, 0))
-        model = glm.rotate(model, self.rotat.x, glm.vec3(1, 0, 0))
+        #model = glm.rotate(model, self.rotat.z, glm.vec3(0, 0, 1))
+        #model = glm.rotate(model, self.rotat.y, glm.vec3(0, 1, 0))
+        #model = glm.rotate(model, self.rotat.x, glm.vec3(1, 0, 0))
         return model 
     
-    def update(self):
+    def update(self)->None:
         # for moving the cube
         self.app.gather.tx.tx[2].use()  # update texture every frame
-        model_mat = glm.rotate(self.model_mat,self.app.time,glm.vec3(0,1,0))
-        self.shader_prog['model_mat'].write(model_mat)
+        #model_mat = glm.rotate(self.model_mat,self.app.time,glm.vec3(0,0,0))
+        self.shader_prog['model_mat'].write(self.model_mat)
         self.shader_prog['v_proj'].write(self.app.cam.view_matrix)
         self.shader_prog['camP'].write(self.app.cam.position)
 
-    def on_init(self):
+    def on_init(self)->None:
         #bulb 
         self.shader_prog['bulb.pos'].write(self.app.bulb.pos)
         self.shader_prog['bulb.amb'].write(self.app.bulb.amb)
@@ -202,11 +202,11 @@ class Twins(Model):
 
 
     #render model
-    def render(self):
+    def render(self)->None:
         self.update()
         self.vao.render()
 
-    def destroy(self):
+    def destroy(self)->None:
         self.base_vao.destroy()
 
 
@@ -219,19 +219,19 @@ class SkyBox(SkyBoxModel):
         self.on_init()
 
     #model matrix
-    def get_model_m(self):
+    def get_model_m(self)->None:
         model = glm.mat4()
         model = glm.translate(model,self.pos)
         return model 
 
 
-    def update(self):
+    def update(self)->None:
         #time * speed
         model_mat = glm.rotate(self.model_mat,self.app.time*0.01,glm.vec3(0,0.1,0))
         self.shader_prog['model_mat'].write(model_mat)
         self.shader_prog['v_proj'].write(glm.mat4(glm.mat3(self.app.cam.view_matrix)))
 
-    def on_init(self):
+    def on_init(self)->None:
         self.shader_prog['tx_skybox'] = 0
         self.app.gather.tx.sb.use()  #  use texture of skybox
         self.shader_prog['v_proj'].write(glm.mat4(glm.mat3(self.app.cam.view_matrix)))
@@ -240,16 +240,18 @@ class SkyBox(SkyBoxModel):
 
 
     #render model
-    def render(self):
+    def render(self)->None:
         self.update()
         self.vao.render()
 
-    def destroy(self):
+    def destroy(self)->None:
         self.base_vao.destroy()
 
+
+#Becnhmark
 class FurMark():
 
-    def __init__(self, app):
+    def __init__(self, app)->None:
         self.app = app
         self.vert = self.app.ctx.buffer(
             np.array([
@@ -262,10 +264,10 @@ class FurMark():
         self.fursp = self.shad_prog.sp.obj['furmark']  # shader program, vertex and fragment shader here
         self.vao = self.app.ctx.vertex_array(self.fursp, [(self.vert, '2f', 'in_vert')])
 
-    def destroy(self):
+    def destroy(self)->None:
         self.shad_prog.sp.destroy()
 
-    def update(self):
+    def update(self)->None:
         self.fursp['time'] = self.app.time
         self.fursp['tx_s'] = 0  # Set the texture sampler value to 0 for the default texture unit
         self.app.gather.tx.tx[3].use()  # Use texture of skybox on texture unit 0
@@ -274,7 +276,7 @@ class FurMark():
         self.fursp['backg'] = 2 
         self.app.gather.tx.tx[5].use(location=2)
         
-    def render(self):
+    def render(self)->None:
         self.update()
         self.app.ctx.clear()
         self.vao.render(mgl.TRIANGLE_STRIP)
@@ -282,11 +284,13 @@ class FurMark():
 
 class VoxelMapRender():
 
-    def __init__(self, app,mode='gen'):
+    def __init__(self, app,mode='gen')->None:
         self.app = app
         noise = Perlin().generate_and_visualize_maps(1024, 1024, 200, 34, 0.4, 4, save_path="./tx/maps/")
         maps = [[f'./tx/maps/height_map_{noise}.png',f'./tx/maps/color_map_{noise}.png'],
-                [f'./tx/maps/height_map.jpg',f'./tx/maps/color_map.jpg']]
+                [f'./tx/maps/height_map_1.png',f'./tx/maps/color_map_1.png']]
+
+        #height/color  generation or map loading 
         if mode == 'gen':
             h_map_img = pg.image.load(maps[0][0]) 
             c_map_img = pg.image.load(maps[0][1]) 
@@ -299,21 +303,13 @@ class VoxelMapRender():
         self.mwidth = len(self.hmap)
         self.cam = Cam(self.app)
 
-        # self.vert = self.app.ctx.buffer(
-        #     np.array([
-        #         -1.0, -1.0,
-        #         1.0, -1.0,
-        #         -1.0,  1.0,
-        #         1.0,  1.0,
-        #     ], dtype=np.float32).tobytes())
-        # self.shad_prog = self.app.gather.vao
-        # self.fursp = self.shad_prog.sp.obj['furmark']  # shader program, vertex and fragment shader here
-        # self.vao = self.app.ctx.vertex_array(self.fursp, [(self.vert, '2f', 'in_vert')])
 
-    def destroy(self):
+    #NO OGL ,NO NEED TO DESTROY OBJECTS
+    def destroy(self)->None:
         pass
 
-    def update(self):
+    
+    def update(self)->None:
         self.cam.update()
         self.cam.screen_array = Raycasting.raycasting(self.cam.screen_array,self.mheight,self.mwidth,self.hmap,
                                            self.cmap,self.cam.campos,
@@ -323,7 +319,7 @@ class VoxelMapRender():
                                            self.cam.ray_dist,self.cam.rhfov,
                                            self.cam.scale)
 
-    def render(self):
+    def render(self)->None:
         #make surface out of array.
         self.update()
         self.app.screen.blit(pg.surfarray.make_surface(self.cam.screen_array),(0,0))

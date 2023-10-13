@@ -25,7 +25,7 @@ class Raycasting:
 
   @njit(fastmath=True)
   def raycasting(screen,mheight,mwidth,hmap,cmap,pos,angle,height,pitch,
-  scrwidth,scrheight,delta_angle,ray_dist,fov,sheight):
+  scrwidth,scrheight,delta_angle,ray_dist,fov,sheight)->'Screen Array':
 
         screen[:] = np.array([0,0,0])
         y_buff =  np.full(scrwidth,scrheight) #fill vertival lines with color 

@@ -41,10 +41,10 @@ class Space:
             if model == "" or not len(coord) == 3:
                  print("Model name or coord is wrong")
             else:
-                match model:
+                match model.lower():
                      case 'cube':   
                         obj = Cube(self.app, 0, (int(coord[0]),int(coord[1]),int(coord[2])))
-                     case 'OBJ':
+                     case 'obj':
                         obj = Twins(self.app, 2, (int(coord[0]),int(coord[1]),int(coord[2])),'default',(270,0,0))
                 self.obj.append(obj)
         except Exception as e:
@@ -52,8 +52,8 @@ class Space:
 
 
     # define a method to load the objects into the scene
-    def load(self,wtl):
-        print(wtl)
+    def load(self,wtl : str):
+        # print(wtl)
         while True:
             if self.app.uogl == 'n':
                 match wtl:
@@ -74,7 +74,7 @@ class Space:
             else:
                 match wtl:
                     case 'cube':
-                        self.obj.append(Cube(self.app, 0, (0, 0, 0)))
+                        self.obj.append(Cube(self.app, 0, glm.vec3(0, 0, 0)))
                         break
                     case 'OBJ':
                         self.obj.append(Twins(self.app, 2, (0, -20, -50),'default',(270,0,0)))
@@ -107,6 +107,16 @@ class Space:
         if self.app.uogl == 'y':self.sb.destroy()
         [x.destroy() for x in self.obj]
 
+    def is_point_inside_cube(self,point_coords, cube_position, cube_size):
+        min_cube_coords = glm.vec3(cube_position)
+        max_cube_coords = glm.vec3(cube_position) + glm.vec3(cube_size)
+
+        if (min_cube_coords.x <= point_coords.x <= max_cube_coords.x and
+            min_cube_coords.y <= point_coords.y <= max_cube_coords.y and
+            min_cube_coords.z <= point_coords.z <= max_cube_coords.z):
+            return True
+        else:
+            return False
 
     #  define a method to render the objects in the scene
     def render(self):
@@ -118,6 +128,9 @@ class Space:
         else:
             # call the "render" method on the SkyBox instance
             self.sb.render()
+            match self.app.dev:
+                case 1:
+                    print(self.is_point_inside_cube(self.app.cam.position,(0,0,0),(1,1,1)))
             if len(self.obj)>0:
                 camera_position = self.app.cam.position
 

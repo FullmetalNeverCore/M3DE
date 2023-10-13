@@ -4,9 +4,9 @@ import numpy as np
 import math 
 
 class Cam:
-    def __init__(self, app,dist=35):
+    def __init__(self, app,dist=35)->None:
         self.app = app
-        self.position = glm.vec3(0, 0, 26) # sets initial position of camera
+        self.position = glm.vec3(0, 0, 0) # sets initial position of camera
         self.up = glm.vec3(0, 2, 0) # sets camera's up direction
         self.forw = glm.vec3(0, 0, -1) # sets camera's forward direction
         self.right = glm.vec3(1, 0, 0) # sets camera's right direction
@@ -40,11 +40,11 @@ class Cam:
             self.proj_matrix = self.get_p_matrix() # gets the projection matrix for the camera
 
 
-    def ray_move(self):
+    def ray_move(self)->None:
         sina = math.sin(self.cam_angle)
         cosa = math.cos(self.cam_angle)
 
-        #Cam control for raycasting engine
+        #Cam control for raycasting engine6
 
         if pg.key.get_pressed()[pg.K_UP]:
             self.campitch += self.vel
@@ -70,13 +70,13 @@ class Cam:
         
 
 
-    def rotate(self):
+    def rotate(self)->None:
         rel_x, rel_y = pg.mouse.get_rel() # gets relative position of the mouse
         self.vertical_ax += rel_x * 0.04 # adjusts the vertical axis of the camera based on mouse movement
         self.horiz_ax -= rel_y * 0.04 # adjusts the horizontal axis of the camera based on mouse movement
         self.horiz_ax = max(-89, min(89, self.horiz_ax)) # keeps the camera within a certain range of vertical motion
 
-    def update_camera_vectors(self):
+    def update_camera_vectors(self)->None:
         vertic, horiz = glm.radians(self.vertical_ax), glm.radians(self.horiz_ax) # converts the vertical and horizontal axes to radians
         
         # calculates the forward direction of the camera based on the vertical and horizontal axes
@@ -88,7 +88,7 @@ class Cam:
         self.right = glm.normalize(glm.cross(self.forw, glm.vec3(0, 1, 0))) # calculates the right direction of the camera
         self.up = glm.normalize(glm.cross(self.right, self.forw)) # calculates the up direction of the camera
     
-    def update(self):
+    def update(self)->None:
         if not self.app.uogl == 'y':
             self.ray_move()
         else:
@@ -103,8 +103,8 @@ class Cam:
         #print(self.proj_matrix)
         # updates the view matrix based on the camera's current position and orientation
 
-    def move(self):
-        velo = 0.05 * self.app.d_time # 0.01 speed
+    def move(self)->None:
+        velo = 0.01 * self.app.d_time # 0.01 speed
         if pg.key.get_pressed()[pg.K_w]:
             self.position += self.forw * velo
         if pg.key.get_pressed()[pg.K_s]:
@@ -117,13 +117,12 @@ class Cam:
             self.position += self.up * velo
         if pg.key.get_pressed()[pg.K_e]:
             self.position -= self.up * velo
-        #print(f"COORDS: {self.position}")
 
-    def get_v_matrix(self):
+    def get_v_matrix(self)->None:
         return glm.lookAt(self.position,self.position + self.forw,self.up) 
         # glm.vec3 - center of camera
 
-    def get_p_matrix(self):
+    def get_p_matrix(self)->None:
         projection_matrix = np.array([
             [1 / (self.aspect_rat * np.tan(np.radians(self.fov / 2))), 0, 0, 0],
             [0, 1 / np.tan(np.radians(self.fov / 2)), 0, 0],

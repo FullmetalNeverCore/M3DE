@@ -10,7 +10,7 @@ class VAO_interface(ABC):
 
     # Define an abstract method for getting a VAO
     @abstractmethod
-    def g_vao(self):
+    def g_vao(self)->'Vertex Array':
         raise NotImplementedError
     
     # Define an abstract method for destroying a VAO
@@ -21,7 +21,7 @@ class VAO_interface(ABC):
 
 class general_VAO():
 
-    def __init__(self,app):
+    def __init__(self,app)->None:
         self.app = app
         self.sp = shader_program(self.app)
         self.vbo = general_VBO(self.app)
@@ -42,6 +42,6 @@ class general_VAO():
         # Define a VAO with a single buffer containing 3 vectors with floating point values
         return self.app.ctx.vertex_array(sp, [(vbo, format, *attrs)], skip_errors=True)
 
-    def destroy(self):
+    def destroy(self)->None:
         self.sp.destroy()
 

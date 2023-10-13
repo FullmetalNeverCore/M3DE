@@ -10,13 +10,13 @@ class VBO_interface(ABC):
     
     # Define an abstract method for retrieving vertex data
     @abstractmethod
-    def vert_data(self):
+    def vert_data(self)->'Vertex Data':
         raise NotImplementedError
     
     
     # Define an abstract method for retrieving the OpenGL VBO handle
     @abstractmethod
-    def g_vbo(self):
+    def g_vbo(self)->'Buffer':
         raise NotImplementedError
 
 
