@@ -26,12 +26,17 @@ import numba
 
 
 class M3DE:
-    def __init__(self, win_size=(1280,720),uoglcmd=0) -> None:
+    def __init__(self, win_size=(1280,720),uoglcmd=0,rraw=0,dev=0) -> None:
+        self.dev = dev
         self.uoglcmd = uoglcmd
-        if uoglcmd == 0:
+        self.status = 'run'
+        if (uoglcmd == 1 and not rraw == 0):
             self.uogl =  input("Deactivate VoxelEngine? (y/n)")#use opengl?
-        else:
+        elif (uoglcmd == 1 and rraw == 0):
             self.uogl = 'n'
+            self.status = 'voxel'
+        else:
+            self.uogl = 'y'
         if self.uogl == 'n':print('WARNING: Without OGL some scenes will not work!')
         pg.init()
         # OpenGL attributes
@@ -56,7 +61,6 @@ class M3DE:
         self.time = 0
         self.d_time = 0
         self.cli_dump = []
-        self.status = 'run'
         self.bench = components.points.Benchmark()
         self.ram_usage = self.get_process_stats()
         # Framerate and delta time   
@@ -72,7 +76,7 @@ class M3DE:
 
 
     #linux solution
-    def get_cpu_temperature(self):
+    def get_cpu_temperature(self)->str:
         if not platform.system() == 'windows':
             try:
                 output = subprocess.check_output(["sensors"])
@@ -82,7 +86,7 @@ class M3DE:
                         temperature_str = line.split(":")[-1].strip().split(" ")[0]
                         return temperature_str
             except Exception as e:
-                return e
+                return str(e)
         else:
             return 'No windows solution was implemented for now.'
 
@@ -116,14 +120,14 @@ class M3DE:
     def render_scene(self):
         if self.space.wtl == 'furmark':
             self.bench.fps_count.append(self.clock.get_fps())
-        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r')
+        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r') 
         if self.uogl == 'y':
             self.ctx.clear(color=(255,255,255))
         self.space.render()
         pg.display.flip()
 
     # Function to get CPU utilization and RAM consumption
-    def get_process_stats(self):
+    def get_process_stats(self)->float:
         pid = os.getpid()
         process = psutil.Process(pid)
         mem_info = process.memory_info()
@@ -135,7 +139,7 @@ class M3DE:
                 selec = selectors.DefaultSelector()
                 selec.register(sys.stdin,selectors.EVENT_READ)
                 events = selec.select(timeout=0.001)
-                #print(f"{sys.stdin.readline().strip()}",end='\r')
+                # print(f"{sys.stdin.readline().strip()}",end='\r')
                 if events:
                         e = sys.stdin.readline().strip()
                         if 'test' in e:
@@ -147,10 +151,6 @@ class M3DE:
                             #[x.destroy() for x in self.space.obj]
                             self.space.obj = []
                             self.space.wtl = input('Current models - cube,OBJ,few_cubes,few_objs ')
-                            if self.space.wtl == 'furmark':
-                                #Benchmarking
-                                thrd = threading.Timer(15,self.benchmark_sched)
-                                thrd.start() 
                             self.space.load(self.space.wtl)
                         elif 'add' in e:
                             os.system('cls' if os.name=='nt' else 'clear')
@@ -158,6 +158,8 @@ class M3DE:
                             print('ADDING OBJECT TO RENDER ARRAY')
                             self.space.add_obj(e)
                             self.cli_dump = []
+                        self.cli_dump.append(e)
+                
 
 
     def cli(self):
@@ -186,6 +188,7 @@ class M3DE:
                                 except IndexError:
                                     print('Nothing to delete')
                             else:
+                                # print(self.cli_dump)
                                 self.cli_dump.append(user_input[0])
         except Exception as e:
              print(e)
@@ -193,20 +196,24 @@ class M3DE:
 
     # Main loop of the program
     def run(self,rraw=0):
+        match self.dev:
+            case 1:
+                print('DEVELOPMENT MODE')
         if rraw==1:
             self.status = 'benchmark'
         self.logo(1)
         # Camera
-        self.cam = Cam(self,input("Draw distance: ") if rraw or self.uoglcmd == 0 and self.uogl == 'y' else 0)
+        # print(self.status)
+        self.cam = Cam(self,input("Draw distance: ") if not self.status in ['benchmark','voxel'] else 0)
         if self.uogl == 'y':
             # LIGHT
-            self.bulb = Bulb()
+            if not self.status == 'benchmark':
+                self.bulb = Bulb()
             # Triangles 
             #Gather
             self.gather = Gather(self)  
-            #Space
-        if rraw==0:
-            self.space = Space(self)
+        if rraw == 0:
+                self.space = Space(self)
         else:
             self.space = Space(self,1)
             self.space.wtl = 'furmark'
@@ -233,4 +240,5 @@ class M3DE:
 # Main entry point of the program
 if __name__ == '__main__':
     print(sys.argv)
-    M3DE(uoglcmd=1 if '-voxel' in sys.argv else 0).run(rraw=1 if '-bm' in sys.argv else 0)
+    M3DE(uoglcmd=1 if '-voxel' in sys.argv else 0,
+    rraw=1 if '-bm' in sys.argv else 0,dev=1 if '-dev' in sys.argv else 0).run(rraw=1 if '-bm' in sys.argv else 0)
