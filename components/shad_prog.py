@@ -29,6 +29,7 @@ class shader_program(shader_program_interface):
         self.obj['fog_default'] = self.g_shader_file('fog_default') # Get the default shader file
         self.obj['fog_skybox'] = self.g_shader_file('fog_skybox')   # Get the skybox shader file
         self.obj['furmark'] = self.g_shader_file('furmark')
+        self.obj['mine'] = self.g_shader_file('mine')
      
     # Destroy the shader program
     def destroy(self)->None:
@@ -38,7 +39,9 @@ class shader_program(shader_program_interface):
     def g_shader_file(self,shader)->'Shader Program':
         print('reading shader_file...')
         with open(f'./shaders/{shader}.vert') as file:
-            vert_shad = file.read()     
+            vert_shad = file.read()  
+            file.close()   
         with open(f'./shaders/{shader}.frag') as file:
-            frag_shad = file.read()      
+            frag_shad = file.read()  
+            file.close()    
         return self.app.ctx.program(vertex_shader=vert_shad,fragment_shader=frag_shad)  # Return the program

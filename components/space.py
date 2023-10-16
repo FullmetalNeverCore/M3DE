@@ -25,7 +25,7 @@ class Space:
         # ects into the scene
         #run right a way,a solution to run Space class without initializing the models
         self.wtl = 'none'
-        self.models = 'cube,OBJ,few_cubes,few_objs' if self.app.uogl == 'y' else 'voxel-gen,voxel1,voxel2'
+        self.models = 'cube,OBJ,few_cubes,few_cubes2 ' if self.app.uogl == 'y' else 'voxel-gen,voxel1,voxel2'
         if rraw==0:
             self.wtl = input(f'Current models - {self.models}') # wtl - what to load
             self.load(self.wtl)
@@ -81,17 +81,30 @@ class Space:
                         break
                     case 'few_cubes':
                                 print('scene might take a while to load...')
-                                self.obj =  self.obj + [Cube(self.app, 0, (x, 0, y)) for y in range(100) for x in range(100)]
+                                size = 50  # Adjust the size of the pyramid
+                                self.app.cam.position = glm.vec3(12,12,68)
+                                for y in range(size):
+                                    for x in range(y, size-y):
+                                        for z in range(y, size-y):
+                                            self.obj.append(Cube(self.app, 0, (x, y, z)))
                                 break
                                         
-                    case 'few_objs':
-                                print('scene might take a while to load...')
-                                self.obj = [Twins(self.app, 2, (0+x, 0-x, 0+x),'default',(270,0,0)) for x in range(10)]
+                    case 'few_cubes2':
+                                size = 50
+                                self.app.cam.position = glm.vec3(12,12,68)
+                                for y in range(size):
+                                    for x in range(y, size - y):
+                                        for z in range(y, size - y):
+                                            if (y == 0 or y == size - 1 or x == y or x == size - y - 1 or z == y or z == size - y - 1):
+                                                self.obj.append(Cube(self.app, 0, (x, y, z)))
                                 break
                     case 'scene':
                         print('loading scene...')
                     case 'furmark':
                         self.obj = [FurMark(self.app)]
+                        break
+                    case 'minecraft':
+                        self.obj = [Minecraft(self.app)]
                         break
                     case _:
                         print('the model you entered is not defined.')   
@@ -101,7 +114,7 @@ class Space:
         self.app.logo()
        
 
-    #define a method to remove all objects from the scene
+    #trying to define collision method
     def destroy(self):
         #call the "destroy" method on each object in the "obj" list
         if self.app.uogl == 'y':self.sb.destroy()
@@ -109,7 +122,7 @@ class Space:
 
     def is_point_inside_cube(self,point_coords, cube_position, cube_size):
         min_cube_coords = glm.vec3(cube_position)
-        max_cube_coords = glm.vec3(cube_position) + glm.vec3(cube_size)
+        max_cube_coords = glm.vec3(cube_position) + (1.0,1.0,1.0)
 
         if (min_cube_coords.x <= point_coords.x <= max_cube_coords.x and
             min_cube_coords.y <= point_coords.y <= max_cube_coords.y and
@@ -120,7 +133,7 @@ class Space:
 
     #  define a method to render the objects in the scene
     def render(self):
-        mods = ['voxel-gen','voxel1','voxel2','furmark']
+        mods = ['voxel-gen','voxel1','voxel2','furmark','minecraft']
         if self.final in mods:
             for o in self.obj:
                 o.render()
@@ -130,7 +143,9 @@ class Space:
             self.sb.render()
             match self.app.dev:
                 case 1:
-                    print(self.is_point_inside_cube(self.app.cam.position,(0,0,0),(1,1,1)))
+                    # print(self.is_point_inside_cube(self.app.cam.position,(0,0,0),(1,1,1)))
+                    print(self.app.cam.position,end="\r")
+                    # print(glm.vec3((0,0,0)) + (0.12,0.12,0.12))
             if len(self.obj)>0:
                 camera_position = self.app.cam.position
 

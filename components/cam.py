@@ -6,6 +6,8 @@ import math
 class Cam:
     def __init__(self, app,dist=35)->None:
         self.app = app
+        # calculate aspect ratio of screen
+        self.aspect_rat = app.WIN_SIZE[0] / app.WIN_SIZE[1] # gets aspect ratio of screen
         self.position = glm.vec3(0, 0, 0) # sets initial position of camera
         self.up = glm.vec3(0, 2, 0) # sets camera's up direction
         self.forw = glm.vec3(0, 0, -1) # sets camera's forward direction
@@ -32,9 +34,23 @@ class Cam:
         #raycasting control 
         self.ang_v = 0.1
         self.vel = 6
+        
+        # #Minecraft own settings - for test
+        # self.vertic_fov = glm.radians(50)
+        # self.horiz_fov = 2 * math.atan(math.tan(self.vertic_fov*0.5)*self.aspect_rat)
+        # self.far = 1000.0
+        # self.near = 0.5
+        # self.pitch = glm.radians(89)#89deg * pi/180 deg to rad
+        # self.plr_obj_spd = 0.05
+        # self.plr_obj_rot_spd = 0.03
+        # self.mouse_sens = 0.02
 
-        # calculate aspect ratio of screen
-        self.aspect_rat = app.WIN_SIZE[0] / app.WIN_SIZE[1] # gets aspect ratio of screen
+        # #Minecraft perscpectives
+
+        # self.yaw = glm.radians(yaw)
+        # self.mine_m_proj = glm.perspective(self.vertic_fov,self.aspect_rat,self.near,self.far)
+        # self.mine_m_view = glm.mat4()
+
         if self.app.uogl == 'y':
             self.view_matrix = self.get_v_matrix() # gets the view matrix for the camera
             self.proj_matrix = self.get_p_matrix() # gets the projection matrix for the camera
@@ -104,7 +120,7 @@ class Cam:
         # updates the view matrix based on the camera's current position and orientation
 
     def move(self)->None:
-        velo = 0.01 * self.app.d_time # 0.01 speed
+        velo = 0.005 * self.app.d_time # 0.01 speed
         if pg.key.get_pressed()[pg.K_w]:
             self.position += self.forw * velo
         if pg.key.get_pressed()[pg.K_s]:
@@ -120,7 +136,6 @@ class Cam:
 
     def get_v_matrix(self)->None:
         return glm.lookAt(self.position,self.position + self.forw,self.up) 
-        # glm.vec3 - center of camera
 
     def get_p_matrix(self)->None:
         projection_matrix = np.array([

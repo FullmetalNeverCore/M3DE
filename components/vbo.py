@@ -2,7 +2,7 @@ import numpy as np
 import moderngl as mgl
 import pywavefront
 from abc import ABC, abstractmethod
-
+from components.chunk import *
 
 
 # Define an abstract base class for VBO interfaces
@@ -21,12 +21,15 @@ class VBO_interface(ABC):
 
 
 class general_VBO:
-    def __init__(self,app) -> None:
+    def __init__(self,vao,app) -> None:
         self.app = app
+        self.vao = vao
+        self.chunk = Chunk(self.app)
         self.vbo_d = {
             'cube' : cube_VBO(app),
             'skybox' : skybox_VBO(app),
-            'twins' : twins_VBO(app)
+            'twins' : twins_VBO(app),
+            'minecraft' : minecraft_VBO(app,self.chunk,self.vao)
         }
 
 
@@ -167,4 +170,87 @@ class twins_VBO(VBO_interface):
 
     def g_vbo(self):
         # Generate a Vertex Buffer Object and store the vertex data in it
+        return self.app.ctx.buffer(self.vert_data())
+
+
+class minecraft_VBO(VBO_interface):
+    def __init__(self,app,ch,vao):
+        self.app = app 
+        self.vao = vao 
+        self.chunk = ch #ch - chunk
+
+    
+    def add_data(self,vert_data,ind,*vertecies)->int:
+        for vert in vertecies:
+            for a in vert:
+                vert_data[ind] = a
+                ind += 1
+        return ind #giving number of next pos
+        
+    def chunk_mesh(self,voxle_data,format_s)->np.array:
+        vertex_data = np.empty(self.chunk.chunk_vol*18*5*format_s,dtype='uint8')
+        ind = 0 
+        for x in range(self.chunk.chunk_size):
+            for y in range(self.chunk.chunk_size):
+                for z in range(self.chunk.chunk_size):
+                    voxid = voxle_data[x+self.chunk.chunk_size*z+self.chunk.chunk_area*y]
+                    if not voxid:
+                        continue
+                    #Cheking if side is visible to camera
+                    #top of the block
+                    if self.check_emp((x,y + 1,z),voxle_data):
+                        e0 = (x,y+1,z,voxid,0)
+                        e1 = (x+1,y+1,z,voxid,0)
+                        e2 = (x+1,y+1,z+1,voxid,0)
+                        e3 = (x,y+1,z+1,voxid,0)
+                        ind = self.add_data(vertex_data,ind,e0,e3,e2,e0,e2,e1)
+                    #bottom
+                    if self.check_emp((x,y - 1,z),voxle_data):
+                        e0 = (x,y,z,voxid,1)
+                        e1 = (x+1,y,z,voxid,1)
+                        e2 = (x+1,y,z+1,voxid,1)
+                        e3 = (x,y+1,z+1,voxid,1)
+                        ind = self.add_data(vertex_data,ind,e0,e2,e3,e0,e1,e2)                   
+                    #right 
+                    if self.check_emp((x+1,y,z),voxle_data):
+                        e0 = (x+1,y,z,voxid,2)
+                        e1 = (x+1,y+1,z,voxid,2)
+                        e2 = (x+1,y+1,z+1,voxid,2)
+                        e3 = (x+1,y,z+1,voxid,2)
+                        ind = self.add_data(vertex_data,ind,e0,e1,e2,e0,e2,e3)  
+                    #left
+                    if self.check_emp((x-1,y,z),voxle_data):
+                        e0 = (x,y,z,voxid,3)
+                        e1 = (x,y+1,z,voxid,3)
+                        e2 = (x,y+1,z+1,voxid,3)
+                        e3 = (x,y,z+1,voxid,3)
+                        ind = self.add_data(vertex_data,ind,e0,e2,e1,e0,e3,e2) 
+                    #back
+                    if self.check_emp((x,y,z-1),voxle_data):
+                        e0 = (x,y,z,voxid,4)
+                        e1 = (x,y+1,z,voxid,4)
+                        e2 = (x+1,y+1,z,voxid,4)
+                        e3 = (x+1,y,z,voxid,4)
+                        ind = self.add_data(vertex_data,ind,e0,e1,e2,e0,e2,e3) 
+                    #front
+                    if self.check_emp((x,y,z+1),voxle_data):
+                        e0 = (x,y,z+1,voxid,5)
+                        e1 = (x,y+1,z+1,voxid,5)
+                        e2 = (x+1,y+1,z+1,voxid,5)
+                        e3 = (x+1,y,z+1,voxid,5)
+                        ind = self.add_data(vertex_data,ind,e0,e2,e1,e0,e3,e2) 
+        return vertex_data[:ind+1]
+                      
+    def check_emp(self,voxpos,voxel_data):
+        x,y,z = voxpos
+        if 0 <= x < self.chunk.chunk_size and 0 <= y < self.chunk.chunk_size and 0:
+            if voxel_data[x + self.chunk.chunk_size * z + self.chunk.chunk_area * y]:
+                return False 
+        return True
+
+    def vert_data(self)->np.array:
+        mesh = self.chunk_mesh(self.chunk.b_voxel,self.vao.mine_form_size)
+        return mesh
+
+    def g_vbo(self):
         return self.app.ctx.buffer(self.vert_data())

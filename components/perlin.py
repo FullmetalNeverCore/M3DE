@@ -44,6 +44,7 @@ class Perlin:
         cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=256)
         return cm(height_map)
 
+    
     def generate_and_visualize_maps(self,width : int, height : int , scale : int, octaves : float , persistence : float, lacunarity : int,save_path : str):
         height_map = self.generate_height_map(width, height, scale, octaves, persistence, lacunarity)
 
