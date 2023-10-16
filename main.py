@@ -39,10 +39,14 @@ class M3DE:
             self.uogl = 'y'
         if self.uogl == 'n':print('WARNING: Without OGL some scenes will not work!')
         pg.init()
+        #PyGame mouse
+        pg.event.set_grab(True) #make mouse operate inside the window
+        pg.mouse.set_visible(False) #setting cursor invisible
         # OpenGL attributes
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION,3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION,3)
         pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK,pg.GL_CONTEXT_PROFILE_CORE)
+        pg.display.gl_set_attribute(pg.GL_DEPTH_SIZE,24)
         pg.display.set_caption("M3DE")
         # Window size
         self.WIN_SIZE = win_size
@@ -55,7 +59,8 @@ class M3DE:
         #glViewport(0, 0, 1280, 700) # OpenGL render screen size
         if self.uogl == 'y':
             self.ctx = mgl.create_context()
-            self.ctx.enable(flags=mgl.DEPTH_TEST) # CULL_FACE to not render invisible
+            self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE | mgl.BLEND) # CULL_FACE to not render invisible
+            self.ctx.gc_mode = 'auto'
         self.config = components.local_neofetch.HardwareStat().template()
         # Time
         self.time = 0
@@ -122,7 +127,7 @@ class M3DE:
             self.bench.fps_count.append(self.clock.get_fps())
         print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r') 
         if self.uogl == 'y':
-            self.ctx.clear(color=(255,255,255))
+            self.ctx.clear(color=(0,0,0))
         self.space.render()
         pg.display.flip()
 
