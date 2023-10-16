@@ -209,7 +209,7 @@ class minecraft_VBO(VBO_interface):
                         e0 = (x,y,z,voxid,1)
                         e1 = (x+1,y,z,voxid,1)
                         e2 = (x+1,y,z+1,voxid,1)
-                        e3 = (x,y+1,z+1,voxid,1)
+                        e3 = (x,y,z+1,voxid,1)
                         ind = self.add_data(vertex_data,ind,e0,e2,e3,e0,e1,e2)                   
                     #right 
                     if self.check_emp((x+1,y,z),voxle_data):
@@ -243,14 +243,13 @@ class minecraft_VBO(VBO_interface):
                       
     def check_emp(self,voxpos,voxel_data):
         x,y,z = voxpos
-        if 0 <= x < self.chunk.chunk_size and 0 <= y < self.chunk.chunk_size and 0:
+        if 0 <= x < self.chunk.chunk_size and 0 <= y < self.chunk.chunk_size and 0 <= z < self.chunk.chunk_size:
             if voxel_data[x + self.chunk.chunk_size * z + self.chunk.chunk_area * y]:
                 return False 
         return True
 
     def vert_data(self)->np.array:
-        mesh = self.chunk_mesh(self.chunk.b_voxel,self.vao.mine_form_size)
-        return mesh
+        return self.chunk_mesh(self.chunk.b_voxel,self.vao.mine_form_size)
 
     def g_vbo(self):
         return self.app.ctx.buffer(self.vert_data())
