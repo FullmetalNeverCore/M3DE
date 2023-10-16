@@ -1,0 +1,14 @@
+moderngl
+pygame
+pywavefront
+pyglm
+numpy
+pyautogui
+wmi
+py-cpuinfo
+moderngl_window
+PyOpenGL
+numba
+matplotlib
+aioconsole
+matplotlib
