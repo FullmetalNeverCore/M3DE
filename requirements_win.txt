@@ -12,3 +12,4 @@ numba
 matplotlib
 aioconsole
 matplotlib
+opensimplex
