@@ -17,6 +17,7 @@ from numba import njit
 from components.perlin import *
 from components.raycast import *
 from components.chunk import *
+from components.wrld import *
 
 
 #TODO:Instancing
@@ -329,10 +330,10 @@ class VoxelMapRender():
 class Minecraft():
     def __init__(self,app)->None:
         self.app = app
-        self.chunk = Chunk(self.app)
         self.shad_prog = self.app.gather.vao
-        self.minesp = self.shad_prog.sp.obj['mine']  # shader program, vertex and fragment shader here
+        self.minesp = self.app.gather.minesp # shader program, vertex and fragment shader here
         self.vao = self.shad_prog.vao_arr['minecraft']
+        self.world = self.app.gather.world
         self.on_init()
 
     def update(self)->None:
@@ -340,12 +341,11 @@ class Minecraft():
 
     def render(self)->None:
         self.update()
-        self.vao.render()
+        self.world.render()
 
     def destroy(self)->None:
         self.shad_prog.sp.destroy()
 
     def on_init(self)->None:
         self.minesp['m_proj'].write(self.app.cam.proj_matrix)
-        self.minesp['model_mat'].write(glm.mat4())
 

@@ -133,6 +133,9 @@ class Cam:
             self.position += self.up * velo
         if pg.key.get_pressed()[pg.K_e]:
             self.position -= self.up * velo
+        match self.app.dev:
+            case 1:
+                print(self.position,end='\r')
 
     def get_v_matrix(self)->None:
         return glm.lookAt(self.position,self.position + self.forw,self.up) 

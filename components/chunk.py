@@ -14,23 +14,36 @@ import time
 from components.cam import *
 import math 
 from numba import njit
+from components.chunk_config import *
+from components.mesh import *
+from components.building_ops import *
 
 
 
 class Chunk:
-    def __init__(self,app)->None:
+    def __init__(self,app,pos=(0,0,0),sp=None,vao=None)->None:
         self.app = app 
-        self.chunk_size = 32
-        self.half_chunk = self.chunk_size // 2
-        self.chunk_area = self.chunk_size * self.chunk_size
-        self.chunk_vol = self.chunk_area * self.chunk_size
-        self.b_voxel = self.b_vox()
+        self.pos = pos
+        self.sp = sp
+        self.vao = vao
+        self.empty_spc = True
+        self.mesh = None 
     
     def b_vox(self)->np.array:
-        vox = np.zeros(self.chunk_vol,dtype='uint8')
-        for x in range(self.chunk_size):
-            for z in range(self.chunk_size):
-                for y in range(self.chunk_size): 
-                    vox[x+self.chunk_size*z+self.chunk_area*y] = x+y+z
+        vox = np.zeros(chunk_vol,dtype='uint8')
+        zx,zy,zz = glm.ivec3(self.pos) * chunk_size
+        gen_terr(vox,zx,zy,zz)
+        if np.any(vox):
+            self.empty_spc = False
         return vox
+    
+    def get_model_m(self):
+        return glm.translate(glm.mat4(),glm.vec3(self.pos)*chunk_size)
 
+    def b_mesh(self):
+        self.mesh = Mesh(chunk=self) 
+    
+    def render(self):
+        if not self.empty_spc:
+            self.sp['model_mat'].write(self.get_model_m())
+            self.mesh.render()

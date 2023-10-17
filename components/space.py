@@ -104,6 +104,7 @@ class Space:
                         self.obj = [FurMark(self.app)]
                         break
                     case 'minecraft':
+                        self.app.cam.position = glm.vec3(12,12,68)
                         self.obj = [Minecraft(self.app)]
                         break
                     case _:
