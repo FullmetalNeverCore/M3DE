@@ -125,7 +125,9 @@ class M3DE:
     def render_scene(self):
         if self.space.wtl == 'furmark':
             self.bench.fps_count.append(self.clock.get_fps())
-        print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r') 
+        match self.dev:
+            case 0:
+                print(f"\rRAM usage: {self.ram_usage:.2f} MB | FPS: {int(self.clock.get_fps())} | input : {self.cli_dump}", end='\r') 
         if self.uogl == 'y':
             self.ctx.clear(color=(0,0,0))
         self.space.render()
