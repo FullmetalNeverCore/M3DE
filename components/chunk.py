@@ -21,11 +21,13 @@ from components.building_ops import *
 
 
 class Chunk:
-    def __init__(self,app,pos=(0,0,0),sp=None,vao=None)->None:
+    def __init__(self,app,pos=(0,0,0),sp=None,vao=None,wrld=None)->None:
         self.app = app 
         self.pos = pos
         self.sp = sp
         self.vao = vao
+        self.wrld = wrld
+        self.model_m = self.get_model_m()
         self.empty_spc = True
         self.mesh = None 
     
@@ -45,5 +47,5 @@ class Chunk:
     
     def render(self):
         if not self.empty_spc:
-            self.sp['model_mat'].write(self.get_model_m())
+            self.sp['model_mat'].write(self.model_m)
             self.mesh.render()

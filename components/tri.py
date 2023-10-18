@@ -330,10 +330,10 @@ class VoxelMapRender():
 class Minecraft():
     def __init__(self,app)->None:
         self.app = app
-        self.shad_prog = self.app.gather.vao
+        self.shad_prog = self.app.gather.sp
         self.minesp = self.app.gather.minesp # shader program, vertex and fragment shader here
-        self.vao = self.shad_prog.vao_arr['minecraft']
         self.world = self.app.gather.world
+        self.tx = self.app.gather.tx.tx[0]
         self.on_init()
 
     def update(self)->None:
@@ -344,8 +344,10 @@ class Minecraft():
         self.world.render()
 
     def destroy(self)->None:
-        self.shad_prog.sp.destroy()
+        self.shad_prog.destroy()
 
     def on_init(self)->None:
+        self.minesp['tx_0'] = 0 
+        self.tx.use(location=0)
         self.minesp['m_proj'].write(self.app.cam.proj_matrix)
 

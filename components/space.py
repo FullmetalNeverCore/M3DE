@@ -104,7 +104,7 @@ class Space:
                         self.obj = [FurMark(self.app)]
                         break
                     case 'minecraft':
-                        self.app.cam.position = glm.vec3(12,12,68)
+                        self.app.cam.position = glm.vec3(37,50,104)
                         self.obj = [Minecraft(self.app)]
                         break
                     case _:
@@ -135,6 +135,7 @@ class Space:
     #  define a method to render the objects in the scene
     def render(self):
         mods = ['voxel-gen','voxel1','voxel2','furmark','minecraft']
+        self.sb.render()
         if self.final in mods:
             for o in self.obj:
                 o.render()

@@ -25,7 +25,7 @@ class World:
         self.sp = sp
         self.vao = vao
         self.ch = [None for x in range(world_v)]
-        self.voxel = np.empty([world_v,chunk_vol])
+        self.voxel = np.empty([world_v,chunk_vol],dtype='uint8')
         self.build_chunk()
         self.build_mesh()
     
@@ -34,7 +34,7 @@ class World:
         for x in range(world_wid):
             for y in range(world_hei):
                 for z in range(world_dim):
-                    chunk = Chunk(app=self.app,pos=(x,y,z),sp=self.sp,vao=self.vao)
+                    chunk = Chunk(app=self.app,pos=(x,y,z),sp=self.sp,vao=self.vao,wrld=self)
                     ch_ind = x + world_wid * z + world_area * y
                     self.ch[ch_ind] = chunk 
                     self.voxel[ch_ind] = chunk.b_vox()

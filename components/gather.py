@@ -8,7 +8,8 @@ class Gather:
         self.app = app 
         self.tx = txuring(self.app.ctx)
         self.vao = general_VAO(self.app)
-        self.minesp = self.vao.sp.obj['mine'] 
+        self.sp = self.vao.sp
+        self.minesp = self.sp.obj['mine'] 
         self.world = World(self.app,self.minesp,self.vao)
 
     def destroy(self):

@@ -4,7 +4,7 @@ chunk_area = chunk_size * chunk_size
 chunk_vol = chunk_area * chunk_size
 
 
-world_wid,world_hei = 2,1
+world_wid,world_hei = 10,3
 world_dim = world_wid 
 world_area = world_wid * world_dim
 center_xz = world_wid * 16
