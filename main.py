@@ -52,7 +52,7 @@ class M3DE:
         self.WIN_SIZE = win_size
         # Create OpenGL context
         if self.uogl == 'y':
-            self.screen = pg.display.set_mode(self.WIN_SIZE, flags= pygame.OPENGL| pg.DOUBLEBUF)
+            self.screen = pg.display.set_mode(self.WIN_SIZE, flags= pygame.OPENGL| pg.DOUBLEBUF | pg.SCALED)
         else:
             self.screen = pg.display.set_mode(self.WIN_SIZE,pg.SCALED)
         # Detect and use existing OpenGL context
