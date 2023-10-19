@@ -181,8 +181,9 @@ class minecraft_VBO(VBO_interface):
         self.chunk = ch
         self.vao = vao 
 
-    def vert_data(self)->np.array:
-        return chunk_mesh(self.chunk.b_vox(),self.vao.mine_form_size)
+    def vert_data(self,chpos,wvox)->np.array:
+        # to optimize mesh creation,we need to remove neibhor chunks so it will render only visible part of world
+        return chunk_mesh(self.chunk.b_vox(),self.vao.mine_form_size,chpos,wvox)
 
-    def g_vbo(self):
-        return self.app.ctx.buffer(self.vert_data())
+    def g_vbo(self,chpos,wvox):
+        return self.app.ctx.buffer(self.vert_data(chpos,wvox))

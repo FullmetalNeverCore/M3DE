@@ -120,7 +120,7 @@ class Cam:
         # updates the view matrix based on the camera's current position and orientation
 
     def move(self)->None:
-        velo = 0.005 * self.app.d_time # 0.01 speed
+        velo = 0.06 * self.app.d_time # 0.01 speed
         if pg.key.get_pressed()[pg.K_w]:
             self.position += self.forw * velo
         if pg.key.get_pressed()[pg.K_s]:

@@ -5,6 +5,7 @@ class Mesh:
         self.app = chunk.app
         self.chunk = chunk
         self.sp = chunk.sp
+        self.wrld = chunk.wrld
         self.gen_vao = chunk.vao.g_vao_special(sp=self.sp,ch=self.chunk)
     
     def render(self):

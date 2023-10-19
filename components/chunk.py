@@ -34,6 +34,15 @@ class Chunk:
     def b_vox(self)->np.array:
         vox = np.zeros(chunk_vol,dtype='uint8')
         zx,zy,zz = glm.ivec3(self.pos) * chunk_size
+        # for x in range(chunk_size):
+        #     for z in range(chunk_size):
+        #         wx = x + zx 
+        #         wz = z + zz
+        #         wrld_hei = int(glm.simplex(glm.vec2(wx,wz)*0.01)*32+32)
+        #         loc_hei = min(wrld_hei - zy,chunk_size)
+        #     for y in range(loc_hei):
+        #         wy = y + zy
+        #         vox[x + chunk_size * z + chunk_size * y] = wy + 1
         gen_terr(vox,zx,zy,zz)
         if np.any(vox):
             self.empty_spc = False

@@ -20,7 +20,10 @@ from components.cam import *
 import math 
 from numba import njit
 from components.noise import noise2,noise3
+from numba import uint8
 
+
+@njit
 def add_data(vert_data, ind, *vertices):
     for vert in vertices:
         for a in vert:
@@ -28,7 +31,12 @@ def add_data(vert_data, ind, *vertices):
             ind += 1
     return ind
 
-def chunk_mesh(voxle_data,format_s):
+@njit
+def convert_to_uint(x,y,z,voxid,id):
+    return uint8(x),uint8(y),uint8(z),uint8(voxid),uint8(id)
+
+@njit
+def chunk_mesh(voxle_data,format_s,ch_position,wrld_vox):
         vertex_data = np.empty(chunk_vol*18*5*format_s,dtype='uint8')
         ind = 0 
         for x in range(chunk_size):
@@ -37,48 +45,55 @@ def chunk_mesh(voxle_data,format_s):
                     voxid = voxle_data[x+chunk_size*z+chunk_area*y]
                     if not voxid:
                         continue
+                    
+                    #checking voxel positions in world
+                    wx,wy,wz = ch_position
+                    xx = x + wx * chunk_size
+                    xy = y + wy * chunk_size
+                    xz = z + wz * chunk_size
                     #Cheking if side is visible to camera
                     #top of the block
-                    if check_emp((x,y + 1,z),voxle_data):
-                        e0 = (x,y+1,z,voxid,0)
-                        e1 = (x+1,y+1,z,voxid,0)
-                        e2 = (x+1,y+1,z+1,voxid,0)
-                        e3 = (x,y+1,z+1,voxid,0)
+
+                    if check_emp((x,y + 1,z),(xx,xy + 1,xz), wrld_vox):
+                        e0 = convert_to_uint(x,y+1,z,voxid,0)
+                        e1 = convert_to_uint(x+1,y+1,z,voxid,0)
+                        e2 = convert_to_uint(x+1,y+1,z+1,voxid,0)
+                        e3 = convert_to_uint(x,y+1,z+1,voxid,0)
                         ind = add_data(vertex_data,ind,e0,e3,e2,e0,e2,e1)
                     #bottom
-                    if check_emp((x,y - 1,z),voxle_data):
-                        e0 = (x,y,z,voxid,1)
-                        e1 = (x+1,y,z,voxid,1)
-                        e2 = (x+1,y,z+1,voxid,1)
-                        e3 = (x,y,z+1,voxid,1)
+                    if check_emp((x,y - 1,z),(xx,xy - 1,xz), wrld_vox):
+                        e0 = convert_to_uint(x,y,z,voxid,1)
+                        e1 = convert_to_uint(x+1,y,z,voxid,1)
+                        e2 = convert_to_uint(x+1,y,z+1,voxid,1)
+                        e3 = convert_to_uint(x,y,z+1,voxid,1)
                         ind = add_data(vertex_data,ind,e0,e2,e3,e0,e1,e2)                   
                     #right 
-                    if check_emp((x+1,y,z),voxle_data):
-                        e0 = (x+1,y,z,voxid,2)
-                        e1 = (x+1,y+1,z,voxid,2)
-                        e2 = (x+1,y+1,z+1,voxid,2)
-                        e3 = (x+1,y,z+1,voxid,2)
+                    if check_emp((x+1,y,z),(xx+1,xy,xz), wrld_vox):
+                        e0 = convert_to_uint(x+1,y,z,voxid,2)
+                        e1 = convert_to_uint(x+1,y+1,z,voxid,2)
+                        e2 = convert_to_uint(x+1,y+1,z+1,voxid,2)
+                        e3 = convert_to_uint(x+1,y,z+1,voxid,2)
                         ind = add_data(vertex_data,ind,e0,e1,e2,e0,e2,e3)  
                     #left
-                    if check_emp((x-1,y,z),voxle_data):
-                        e0 = (x,y,z,voxid,3)
-                        e1 = (x,y+1,z,voxid,3)
-                        e2 = (x,y+1,z+1,voxid,3)
-                        e3 = (x,y,z+1,voxid,3)
+                    if check_emp((x-1,y,z),(xx-1,xy,xz), wrld_vox):
+                        e0 = convert_to_uint(x,y,z,voxid,3)
+                        e1 = convert_to_uint(x,y+1,z,voxid,3)
+                        e2 = convert_to_uint(x,y+1,z+1,voxid,3)
+                        e3 = convert_to_uint(x,y,z+1,voxid,3)
                         ind = add_data(vertex_data,ind,e0,e2,e1,e0,e3,e2) 
                     #back
-                    if check_emp((x,y,z-1),voxle_data):
-                        e0 = (x,y,z,voxid,4)
-                        e1 = (x,y+1,z,voxid,4)
-                        e2 = (x+1,y+1,z,voxid,4)
-                        e3 = (x+1,y,z,voxid,4)
+                    if check_emp((x,y,z-1),(xx,xy,xz-1), wrld_vox):
+                        e0 = convert_to_uint(x,y,z,voxid,4)
+                        e1 = convert_to_uint(x,y+1,z,voxid,4)
+                        e2 = convert_to_uint(x+1,y+1,z,voxid,4)
+                        e3 = convert_to_uint(x+1,y,z,voxid,4)
                         ind = add_data(vertex_data,ind,e0,e1,e2,e0,e2,e3) 
                     #front
-                    if check_emp((x,y,z+1),voxle_data):
-                        e0 = (x,y,z+1,voxid,5)
-                        e1 = (x,y+1,z+1,voxid,5)
-                        e2 = (x+1,y+1,z+1,voxid,5)
-                        e3 = (x+1,y,z+1,voxid,5)
+                    if check_emp((x,y,z+1),(xx,xy,xz+1), wrld_vox):
+                        e0 = convert_to_uint(x,y,z+1,voxid,5)
+                        e1 = convert_to_uint(x,y+1,z+1,voxid,5)
+                        e2 = convert_to_uint(x+1,y+1,z+1,voxid,5)
+                        e3 = convert_to_uint(x+1,y,z+1,voxid,5)
                         ind = add_data(vertex_data,ind,e0,e2,e1,e0,e3,e2) 
         return vertex_data[:ind+1]
 
@@ -124,9 +139,28 @@ def g_hei(x, z):
 
     return int(height)
 
-def check_emp(voxpos,voxel_data):
-        x,y,z = voxpos
-        if 0 <= x < chunk_size and 0 <= y < chunk_size and 0 <= z < chunk_size:
-            if voxel_data[x + chunk_size * z + chunk_area * y]:
-                return False 
-        return True
+
+#get chunk position
+@njit
+def get_ch_ind(w_vox_pos)->'Chunk Index':
+    wx,wy,wz = w_vox_pos
+    cx = wx // chunk_size
+    cy = wy // chunk_size
+    cz = wz // chunk_size
+    if not (0 <= cx < world_wid and 0 <= cy < world_hei and 0 <= cz < world_dim):
+        return -1 # if coords of chunks is after the world limit return -1
+    index = cx + world_wid * cz + world_area * cy 
+    return index
+    
+@njit
+def check_emp(voxpos,w_vox_pos,wrld_vox)->bool:
+    ch_ind = get_ch_ind(w_vox_pos)
+    if ch_ind < -1:
+        return False
+    #if here then chunk is within the world limit
+    ch_vox = wrld_vox[ch_ind]
+    x,y,z = voxpos 
+    vox_ind = x % chunk_size + z % chunk_size * chunk_size + y % chunk_size * chunk_area
+    if ch_vox[vox_ind]:
+        return False
+    return True
