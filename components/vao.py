@@ -33,20 +33,21 @@ class general_VAO():
         self.fursp = self.sp.obj['furmark']
         self.new_sp = self.sp.obj['default'] if not self.fog else self.sp.obj['fog_default']
         self.new_sbsp = self.sp.obj['skybox'] if not self.fog else self.sp.obj['fog_skybox']
-        self.mine_form_size = sum(int(x[:1]) for x in '3u1 1u1 1u1'.split())
+        self.mine_form_size = sum(int(x[:1]) for x in '1u4'.split())
         self.vao_arr = {
             'cube' : self.g_vao(self.sp.obj['default'] if not self.fog else self.sp.obj['fog_default'],self.vbo.vbo_d['cube'].g_vbo(),'2f 3f 3f',['in_txcoord','in_norm','in_position']),
             'skybox' : self.g_vao(self.sp.obj['skybox'] if not self.fog else self.sp.obj['fog_skybox'],self.vbo.vbo_d['skybox'].g_vbo(),'3f',['in_position']),
             'twins' : self.g_vao(self.sp.obj['default'] if not self.fog else self.sp.obj['fog_default'],self.vbo.vbo_d['twins'].g_vbo(),'2f 3f 3f',['in_txcoord','in_norm','in_position']),
         }
     
+    #minecraft world render.
     def g_vao_special(self,sp,ch):
         world_vox = ch.wrld.voxel
         ch_pos = ch.pos
         return self.app.ctx.vertex_array(sp,
         [(minecraft_VBO(self.app,ch,self).g_vbo(ch_pos,world_vox),
-        '3u1 1u1 1u1',
-        *('in_position','vox_id','face_id')
+        '1u4',
+        *('data',)
         )],skip_errors=True)
 
     def g_vao(self,sp,vbo,format,attrs):

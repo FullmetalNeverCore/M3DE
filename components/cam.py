@@ -2,22 +2,30 @@ import glm
 import pygame as pg
 import numpy as np
 import math 
+from components.chunk_config import *
 
 class Cam:
     def __init__(self, app,dist=35)->None:
         self.app = app
         # calculate aspect ratio of screen
         self.aspect_rat = app.WIN_SIZE[0] / app.WIN_SIZE[1] # gets aspect ratio of screen
-        self.position = glm.vec3(0, 0, 0) # sets initial position of camera
+        self.position = glm.vec3(0,0,0)# sets initial position of camera
         self.up = glm.vec3(0, 2, 0) # sets camera's up direction
         self.forw = glm.vec3(0, 0, -1) # sets camera's forward direction
         self.right = glm.vec3(1, 0, 0) # sets camera's right direction
         self.vertical_ax = -90 # sets vertical axis for camera
         self.horiz_ax = 0 # sets horizontal axis for camera
-        self.fov = 100
+        self.fov = 80
         self.near_distance = 0.1  # Near plane distance
         self.far_distance = float(dist)
 
+        self.vert_fov = glm.radians(self.fov)
+        self.horiz_fov = 2 * math.atan(math.tan(self.vert_fov * 0.5)*self.aspect_rat)
+
+        self.f_y = 1.0 / math.cos(half_y:= self.horiz_fov * 0.7)
+        self.tan_y = math.tan(half_y)
+        self.f_x = 1.0 / math.cos(half_x:=self.vert_fov * 0.7)
+        self.tan_x = math.tan(half_x)
         #raycasting
         self.rfov = math.pi/2 #raycasting fov
         self.rhfov = self.rfov / 2 # raycasting height fov
@@ -55,6 +63,22 @@ class Cam:
             self.view_matrix = self.get_v_matrix() # gets the view matrix for the camera
             self.proj_matrix = self.get_p_matrix() # gets the projection matrix for the camera
 
+
+    def frustum(self,chunk):
+        self.sphere = chunk.center - self.position 
+        #checking if outside the near or far
+        zin = glm.dot(self.sphere,self.forw)
+        if not (self.near_distance - chunk_sphere <= zin <= self.far_distance + chunk_sphere):
+            return False
+        yin =  glm.dot(self.sphere,self.up)
+        distance = self.f_y * chunk_sphere + zin * self.tan_y 
+        if not (-distance <= yin <= distance):
+            return False 
+        xin = glm.dot(self.sphere,self.right)
+        distance = self.f_x * chunk_sphere + zin * self.tan_x
+        if not (-distance <= xin <=distance):
+            return False
+        return True
 
     def ray_move(self)->None:
         sina = math.sin(self.cam_angle)

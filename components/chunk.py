@@ -30,19 +30,13 @@ class Chunk:
         self.model_m = self.get_model_m()
         self.empty_spc = True
         self.mesh = None 
+        self.center = (glm.vec3(self.pos)+0.5)*chunk_size
+        self.check_frusutm = self.app.cam.frustum
     
+    #buidling voxel terrain
     def b_vox(self)->np.array:
         vox = np.zeros(chunk_vol,dtype='uint8')
         zx,zy,zz = glm.ivec3(self.pos) * chunk_size
-        # for x in range(chunk_size):
-        #     for z in range(chunk_size):
-        #         wx = x + zx 
-        #         wz = z + zz
-        #         wrld_hei = int(glm.simplex(glm.vec2(wx,wz)*0.01)*32+32)
-        #         loc_hei = min(wrld_hei - zy,chunk_size)
-        #     for y in range(loc_hei):
-        #         wy = y + zy
-        #         vox[x + chunk_size * z + chunk_size * y] = wy + 1
         gen_terr(vox,zx,zy,zz)
         if np.any(vox):
             self.empty_spc = False
@@ -55,6 +49,6 @@ class Chunk:
         self.mesh = Mesh(chunk=self) 
     
     def render(self):
-        if not self.empty_spc:
+        if not self.empty_spc and self.check_frusutm(self):
             self.sp['model_mat'].write(self.model_m)
             self.mesh.render()

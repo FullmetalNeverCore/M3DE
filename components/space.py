@@ -25,7 +25,7 @@ class Space:
         # ects into the scene
         #run right a way,a solution to run Space class without initializing the models
         self.wtl = 'none'
-        self.models = 'cube,OBJ,few_cubes,few_cubes2 ' if self.app.uogl == 'y' else 'voxel-gen,voxel1,voxel2'
+        self.models = 'cube,OBJ,few_cubes,few_cubes2,mc ' if self.app.uogl == 'y' else 'voxel-gen,voxel1,voxel2'
         if rraw==0:
             self.wtl = input(f'Current models - {self.models}') # wtl - what to load
             self.load(self.wtl)
@@ -103,9 +103,10 @@ class Space:
                     case 'furmark':
                         self.obj = [FurMark(self.app)]
                         break
-                    case 'minecraft':
-                        self.app.cam.position = glm.vec3(37,50,104)
-                        self.obj = [Minecraft(self.app)]
+                    case 'mc':
+                        self.app.cam.position = glm.vec3(445, 23, 418) 
+                        self.obj.append(Twins(self.app, 2, (439,5,354),'default',(270,0,0)))
+                        self.obj.append(Minecraft(self.app))
                         break
                     case _:
                         print('the model you entered is not defined.')   
@@ -121,6 +122,7 @@ class Space:
         if self.app.uogl == 'y':self.sb.destroy()
         [x.destroy() for x in self.obj]
 
+    #test 
     def is_point_inside_cube(self,point_coords, cube_position, cube_size):
         min_cube_coords = glm.vec3(cube_position)
         max_cube_coords = glm.vec3(cube_position) + (1.0,1.0,1.0)
@@ -134,15 +136,15 @@ class Space:
 
     #  define a method to render the objects in the scene
     def render(self):
-        mods = ['voxel-gen','voxel1','voxel2','furmark','minecraft']
-        self.sb.render()
+        mods = ['voxel-gen','voxel1','voxel2','furmark','mc']
+        if not self.final in ['voxel-gen','voxel1','volel2']:
+            self.sb.render() 
         if self.final in mods:
             for o in self.obj:
                 o.render()
 
         else:
             # call the "render" method on the SkyBox instance
-            self.sb.render()
             match self.app.dev:
                 case 1:
                     # print(self.is_point_inside_cube(self.app.cam.position,(0,0,0),(1,1,1)))

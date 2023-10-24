@@ -26,6 +26,7 @@ class World:
         self.vao = vao
         self.ch = [None for x in range(world_v)]
         self.voxel = np.empty([world_v,chunk_vol],dtype='uint8')
+        print('Generating World...')
         self.build_chunk()
         self.build_mesh()
     

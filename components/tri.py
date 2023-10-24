@@ -36,7 +36,7 @@ class Model(ABC):
         self.base_vao = self.app.gather.vao
         # creates a shader program object and sets it to sh_prog_obj attribute
         self.obj = {}
-        
+
         # sets the shader program to the shader program object
         self.shader_prog = self.app.gather.vao.new_sp
         
@@ -178,9 +178,9 @@ class Twins(Model):
         model = glm.mat4()
         model = glm.translate(model,self.pos)
         # rotate
-        #model = glm.rotate(model, self.rotat.z, glm.vec3(0, 0, 1))
-        #model = glm.rotate(model, self.rotat.y, glm.vec3(0, 1, 0))
-        #model = glm.rotate(model, self.rotat.x, glm.vec3(1, 0, 0))
+        model = glm.rotate(model, self.rotat.z, glm.vec3(0, 0, 1))
+        model = glm.rotate(model, self.rotat.y, glm.vec3(0, 1, 0))
+        model = glm.rotate(model, self.rotat.x, glm.vec3(1, 0, 0))
         return model 
     
     def update(self)->None:
@@ -333,11 +333,14 @@ class Minecraft():
         self.shad_prog = self.app.gather.sp
         self.minesp = self.app.gather.minesp # shader program, vertex and fragment shader here
         self.world = self.app.gather.world
-        self.tx = self.app.gather.tx.tx[0]
+        self.tx = self.app.gather.tx.tx[6]
         self.on_init()
 
     def update(self)->None:
         self.minesp['v_proj'].write(self.app.cam.view_matrix)
+        self.minesp['camP'].write(self.app.cam.position)
+        self.minesp['rendist'].write(glm.int32(int(self.app.cam.far_distance)))
+        self.tx.use(location=0)
 
     def render(self)->None:
         self.update()

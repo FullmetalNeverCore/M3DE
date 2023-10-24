@@ -9,6 +9,6 @@ class Bulb:
         self.pos = glm.vec3(pos)
 
         # Define Phong coefficients for the light source
-        self.amb = 0.1 * self.clr  # ambient coefficient
+        self.amb = 0.5 * self.clr  # ambient coefficient
         self.diffus = 0.8 * self.clr # diffusion coefficient
         self.spec = 1.0 * self.clr # specular coefficient

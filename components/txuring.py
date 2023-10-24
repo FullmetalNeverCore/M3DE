@@ -18,7 +18,8 @@ class txuring:
                    ,2:self.texturing('./tx/Cat_diffuse.jpg'),
                    3:self.texturing('./tx/11133.jpg'),
                    4:self.texturing('./tx/noise.png'),
-                   5:self.texturing('./tx/doom2.jpeg')}
+                   5:self.texturing('./tx/doom2.jpeg'),
+                   6:self.use_tx_arr()}
         # Setting the skybox to the skybox from the skybox function
         self.sb = self.skybox('./tx/skybox/')
 
@@ -34,6 +35,14 @@ class txuring:
             box.write(x, tx_data)
         # Returning the box
         return box
+    
+    def use_tx_arr(self):
+        tx = pg.image.load('./tx/tx_arr.png').convert()
+        tx = pg.transform.flip(tx, flip_x=True, flip_y=False)
+        layers = 3 * tx.get_height() // tx.get_width() #getting amount of layers
+        return self.ctx.texture_array(size=(tx.get_width(),tx.get_height()//layers,layers),
+        components=4,
+        data=pg.image.tostring(tx,'RGBA'))
 
     # Defining the texturing function with path argument
     def texturing(self, path):
