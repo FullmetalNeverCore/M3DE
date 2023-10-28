@@ -10,7 +10,7 @@ class Gather:
         self.vao = general_VAO(self.app)
         self.sp = self.vao.sp
         self.minesp = self.sp.obj['mine'] 
-        self.world = World(self.app,self.minesp,self.vao)
+        if not self.app.status == 'benchmark':self.world = World(self.app,self.minesp,self.vao)
 
     def destroy(self):
         self.vao.destroy()
