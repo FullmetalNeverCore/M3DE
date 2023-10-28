@@ -26,7 +26,7 @@ import numba
 
 
 class M3DE:
-    def __init__(self, win_size=(1280,720),uoglcmd=0,rraw=0,dev=0) -> None:
+    def __init__(self, win_size=(840,620),uoglcmd=0,rraw=0,dev=0) -> None:
         self.dev = dev
         self.uoglcmd = uoglcmd
         self.status = 'run'
@@ -54,7 +54,7 @@ class M3DE:
         if self.uogl == 'y':
             self.screen = pg.display.set_mode(self.WIN_SIZE, flags= pygame.OPENGL| pg.DOUBLEBUF)
         else:
-            self.screen = pg.display.set_mode(self.WIN_SIZE,pg.SCALED)
+            self.screen = pg.display.set_mode(self.WIN_SIZE)
         # Detect and use existing OpenGL context
         #glViewport(0, 0, 1280, 700) # OpenGL render screen size
         if self.uogl == 'y':
@@ -74,7 +74,7 @@ class M3DE:
         self.stop_event = threading.Event()
 
 
-    def logo(self,conf=0):
+    def logo(self,conf=0)->None:
                         os.system('cls' if os.name=='nt' else 'clear')   
                         print(Logo.logo())  
                         if conf == 0:print(self.config)
@@ -96,7 +96,7 @@ class M3DE:
             return 'No windows solution was implemented for now.'
 
     # Method for handling events
-    def events(self):
+    def events(self)->None:
         for event in pg.event.get():
             if (event.type == pg.KEYDOWN and event.key == pg.K_z) or event.type == pg.QUIT:
                 self.space.destroy()
@@ -109,10 +109,10 @@ class M3DE:
                 self.run()
 
     # Method for getting time
-    def space_time(self):
+    def space_time(self)->None:
         self.time = pg.time.get_ticks() * 0.001
          
-    def benchmark_sched(self):
+    def benchmark_sched(self)->None:
         #pg.quit()
         print('Benchmarking complete.')
         print(f'Avarage FPS: {self.bench.avarage_fps()}')
@@ -122,7 +122,7 @@ class M3DE:
 
 
     # Method for rendering the scene
-    def render_scene(self):
+    def render_scene(self)->None:
         if self.space.wtl == 'furmark':
             self.bench.fps_count.append(self.clock.get_fps())
         match self.dev:
@@ -142,7 +142,7 @@ class M3DE:
         return ram_usage
 
     
-    def cli_linux(self):
+    def cli_linux(self)->None:
                 selec = selectors.DefaultSelector()
                 selec.register(sys.stdin,selectors.EVENT_READ)
                 events = selec.select(timeout=0.001)
@@ -169,7 +169,7 @@ class M3DE:
                 
 
 
-    def cli(self):
+    def cli(self)->None:
         try:
             if platform.system() == "Windows":
                 if msvcrt.kbhit():
@@ -202,7 +202,7 @@ class M3DE:
 
 
     # Main loop of the program
-    def run(self,rraw=0):
+    def run(self,rraw=0)->None:
         match self.dev:
             case 1:
                 print('DEVELOPMENT MODE')
